@@ -58,6 +58,11 @@
   		<artifactId>wink-json4j</artifactId>
   		<version>1.4</version>
   	</dependency>
+        <!--<dependency>
+                <groupId>com.owlike</groupId>
+                <artifactId>genson</artifactId>
+                <version>0.98</version>
+        </dependency>-->
   </dependencies>
   
   <profiles>
