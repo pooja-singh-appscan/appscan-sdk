@@ -21,6 +21,7 @@ import static com.hcl.appscan.sdk.scanners.ScanConstants.ERROR_CREATING_SCAN;
 import static com.hcl.appscan.sdk.scanners.dynamic.DASTConstants.STARTING_URL;
 import com.hcl.appscan.sdk.utils.SystemUtil;
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -54,7 +55,7 @@ public class ASEScan implements IScan, ScanConstants, Serializable{
     public void run() throws ScannerException, InvalidTargetException {
         String target = getTarget();
         Map<String, String> params = getProperties();
-        params.put(STARTING_URL, target);
+        //params.put(STARTING_URL, target);
         
         setScanId(getServiceProvider().createAndExecuteScan(null, params));
 		
@@ -69,6 +70,15 @@ public class ASEScan implements IScan, ScanConstants, Serializable{
 			m_properties.put(CoreConstants.EMAIL_NOTIFICATION, Boolean.toString(false));
 		return m_properties;
 	}
+    private Map<String,String> getParams(Map<String,String> properties){
+        Map<String,String> apiParams= new HashMap<>();
+        apiParams.put("testPolicyId", properties.get("testPolicyId"));
+        apiParams.put("folderId",properties.get("testPolicyId"));
+        apiParams.put("applicationId",properties.get("applicationId"));
+        apiParams.put("name", properties.get("name"));
+        apiParams.put("templateId", properties.get("templateId"));
+        return apiParams;
+    }
     
     private String getTarget() {
 		return m_target;

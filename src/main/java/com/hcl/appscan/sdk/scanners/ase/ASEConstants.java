@@ -9,6 +9,7 @@ package com.hcl.appscan.sdk.scanners.ase;
  *
  * @author anurag-s
  */
-public class ASEConstants {
+public interface ASEConstants {
+    String ASE_DAST							= "Appscan Enterprise Dynamic Analyzer";				//$NON-NLS-1$
     
 }

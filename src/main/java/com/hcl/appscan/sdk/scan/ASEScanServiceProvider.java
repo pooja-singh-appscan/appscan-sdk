@@ -53,7 +53,8 @@ public class ASEScanServiceProvider implements IScanServiceProvider, Serializabl
 		
 		m_progress.setStatus(new Message(Message.INFO, Messages.getMessage(EXECUTING_SCAN)));
                 // TODO : correct it .
-                String templateId=params.get("template");
+                String templateId=params.get("templateId");
+                params.remove("templateId");
 		
 		String request_url =  m_authProvider.getServer() + String.format(ASE_CREATEJOB_TEMPLATE_ID, templateId);
 		Map<String, String> request_headers = m_authProvider.getAuthorizationHeader(true);
