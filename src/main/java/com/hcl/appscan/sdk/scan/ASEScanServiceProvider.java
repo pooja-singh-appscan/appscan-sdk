@@ -22,6 +22,7 @@ import com.hcl.appscan.sdk.auth.IASEAuthenticationProvider;
 import com.hcl.appscan.sdk.auth.IAuthenticationProvider;
 import com.hcl.appscan.sdk.http.HttpClient;
 import com.hcl.appscan.sdk.http.HttpResponse;
+import com.hcl.appscan.sdk.http.HttpsClient;
 import com.hcl.appscan.sdk.logging.IProgress;
 import com.hcl.appscan.sdk.logging.Message;
 import java.io.File;
@@ -48,7 +49,8 @@ public class ASEScanServiceProvider implements IScanServiceProvider, Serializabl
 
     @Override
     public String createAndExecuteScan(String type, Map<String, String> params) {
-        if(loginExpired() || !verifyApplication(params.get(APP_ID)))
+        //if(loginExpired() || !verifyApplication(params.get("applicationId")))
+                if(loginExpired())
 			return null;
 		
 		m_progress.setStatus(new Message(Message.INFO, Messages.getMessage(EXECUTING_SCAN)));
@@ -56,10 +58,14 @@ public class ASEScanServiceProvider implements IScanServiceProvider, Serializabl
                 String templateId=params.get("templateId");
                 params.remove("templateId");
 		
-		String request_url =  m_authProvider.getServer() + String.format(ASE_CREATEJOB_TEMPLATE_ID, templateId);
+		//String request_url =  m_authProvider.getServer() + String.format(ASE_CREATEJOB_TEMPLATE_ID, templateId);
+                String request_url = "https://ap-asc-win47.nonprod.hclpnp.com:9443/ase" + String.format(ASE_CREATEJOB_TEMPLATE_ID, templateId);
 		Map<String, String> request_headers = m_authProvider.getAuthorizationHeader(true);
+                request_headers.put(CONTENT_TYPE, "application/json; utf-8"); //$NON-NLS-1$
+		request_headers.put(CHARSET, UTF8);
+                request_headers.put("Accept", "application/json"); //$NON-NLS-1$ //$NON-NLS-2$
 		
-		HttpClient client = new HttpClient();
+		      HttpsClient client = new HttpsClient();
 		
 		try {
 			HttpResponse response = client.postForm(request_url, request_headers, params);
@@ -115,12 +121,14 @@ public class ASEScanServiceProvider implements IScanServiceProvider, Serializabl
 
     @Override
     public IAuthenticationProvider getAuthenticationProvider() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return m_authProvider;
     }
+    
+    
 
     @Override
     public void setProgress(IProgress progress) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        m_progress = progress;
     }
     
 }
