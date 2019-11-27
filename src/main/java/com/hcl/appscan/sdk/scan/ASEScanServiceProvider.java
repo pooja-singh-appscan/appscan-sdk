@@ -59,7 +59,7 @@ public class ASEScanServiceProvider implements IScanServiceProvider, Serializabl
                 params.remove("templateId");
 		
 		//String request_url =  m_authProvider.getServer() + String.format(ASE_CREATEJOB_TEMPLATE_ID, templateId);
-                String request_url = "https://ap-asc-win47.nonprod.hclpnp.com:9443/ase" + String.format(ASE_CREATEJOB_TEMPLATE_ID, templateId);
+                String request_url = m_authProvider.getServer() + String.format(ASE_CREATEJOB_TEMPLATE_ID, templateId);
 		Map<String, String> request_headers = m_authProvider.getAuthorizationHeader(true);
                 request_headers.put(CONTENT_TYPE, "application/json; utf-8"); //$NON-NLS-1$
 		request_headers.put(CHARSET, UTF8);
