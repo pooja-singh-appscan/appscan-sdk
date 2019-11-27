@@ -12,6 +12,7 @@ import java.io.FileReader;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.Proxy;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -35,15 +36,25 @@ public class SAClient implements SASTConstants {
 	private IProgress m_progress;
 	private ProcessBuilder m_builder;
 	private File m_installDir;
+	private Proxy m_proxy;
 	
 	public SAClient() {
-		this(new DefaultProgress());
+		this(new DefaultProgress(), Proxy.NO_PROXY);
+	}
+	
+	public SAClient(Proxy proxy) {
+		this(new DefaultProgress(), proxy);
 	}
 	
 	public SAClient(IProgress progress) {
+		this(progress, Proxy.NO_PROXY);
+	}
+	
+	public SAClient(IProgress progress, Proxy proxy) {
 		m_progress = progress;
 		String install = System.getProperty(CoreConstants.SACLIENT_INSTALL_DIR);
 		m_installDir = install == null ? DEFAULT_INSTALL_DIR : new File(install);
+		m_proxy = proxy;
 	}
 	
 	/**
@@ -141,7 +152,7 @@ public class SAClient implements SASTConstants {
 			clientZip.delete();
 		
 		try {
-			ServiceUtil.getSAClientUtil(clientZip);
+			ServiceUtil.getSAClientUtil(clientZip, m_proxy);
 		} catch(OutOfMemoryError e) {
 			throw new ScannerException(Messages.getMessage(DOWNLOAD_OUT_OF_MEMORY));
 		} catch(IOException e) {
@@ -162,8 +173,14 @@ public class SAClient implements SASTConstants {
 		return SystemUtil.isWindows() ? WIN_SCRIPT : UNIX_SCRIPT;
 	}
 	
-	private boolean shouldUpdateClient() throws IOException {
-		String serverVersion = ServiceUtil.getSAClientVersion();
+	public boolean majorVersionChanged() throws IOException {
+		String serverMajorVersion = ServiceUtil.getSAClientVersion(m_proxy).substring(0, 1);
+		String localMajorVersion = getLocalClientVersion().substring(0, 1);
+		return !localMajorVersion.equals(serverMajorVersion);
+	}
+	
+	public boolean shouldUpdateClient() throws IOException {
+		String serverVersion = ServiceUtil.getSAClientVersion(m_proxy);
 		String localVersion = getLocalClientVersion();
 
 		if(compareVersions(localVersion, serverVersion)) {
@@ -263,19 +280,22 @@ public class SAClient implements SASTConstants {
 			args.add(OPT_CONFIG);
 			args.add(properties.get(CONFIG_FILE));
 		}
-		if(properties.containsKey(DEBUG))
+		if(properties.containsKey(DEBUG) || System.getProperty(DEBUG.toUpperCase()) != null)
 			args.add(OPT_DEBUG);
 		if(properties.containsKey(VERBOSE))
 			args.add(OPT_VERBOSE);
-		if(properties.containsKey(THIRD_PARTY))
+		if(properties.containsKey(THIRD_PARTY) || System.getProperty(THIRD_PARTY) != null)
 			args.add(OPT_THIRD_PARTY);
-                if (properties.containsKey(OPEN_SOURCE_ONLY))
-                        args.add(OPT_OPEN_SOURCE_ONLY);
+		if (properties.containsKey(OPEN_SOURCE_ONLY) || System.getProperty(OPEN_SOURCE_ONLY) != null)
+			args.add(OPT_OPEN_SOURCE_ONLY);
 		
 		return args;
 	}
 
 	private boolean compareVersions(String baseVersion, String newVersion) {
+		if(baseVersion == null)
+			return true;
+		
 		if(baseVersion != null && newVersion != null) {
 			String[] base = baseVersion.split("\\."); //$NON-NLS-1$
 			String[] next = newVersion.split("\\."); //$NON-NLS-1$

@@ -151,7 +151,7 @@ public class CloudResultsProvider implements IResultsProvider, Serializable, Cor
 			JSONObject obj = m_scanProvider.getScanDetails(m_scanId);
 			obj = (JSONObject) obj.get(LATEST_EXECUTION);
 			m_status = obj.getString(STATUS);
-			if(m_status != null && !m_status.equalsIgnoreCase(RUNNING)) {
+			if(m_status != null && !(m_status.equalsIgnoreCase(INQUEUE) || m_status.equalsIgnoreCase(RUNNING))) {
 				m_totalFindings = obj.getInt(TOTAL_ISSUES);
 				m_highFindings = obj.getInt(HIGH_ISSUES);
 				m_mediumFindings = obj.getInt(MEDIUM_ISSUES);
@@ -176,7 +176,7 @@ public class CloudResultsProvider implements IResultsProvider, Serializable, Cor
 		Map<String, String> request_headers = authProvider.getAuthorizationHeader(true);
 		request_headers.put(CONTENT_LENGTH, "0"); //$NON-NLS-1$
 	
-		HttpClient client = new HttpClient();
+		HttpClient client = new HttpClient(m_scanProvider.getAuthenticationProvider().getProxy());
 		HttpResponse response = client.get(request_url, request_headers, null);
 	
 		if (response.getResponseCode() == HttpsURLConnection.HTTP_OK) {
@@ -202,4 +202,26 @@ public class CloudResultsProvider implements IResultsProvider, Serializable, Cor
 		if(!m_hasResults)
 			loadResults();
 	}
+	
+    protected String getReportStatus(String reportId) throws IOException, JSONException {
+		IAuthenticationProvider authProvider = m_scanProvider.getAuthenticationProvider();
+		if(authProvider.isTokenExpired()) {
+			m_progress.setStatus(new Message(Message.ERROR, Messages.getMessage(ERROR_LOGIN_EXPIRED)));
+			return FAILED;
+		}
+	
+		String request_url = authProvider.getServer() + String.format(API_REPORT_STATUS, reportId);
+		Map<String, String> request_headers = authProvider.getAuthorizationHeader(true);
+		request_headers.put(CONTENT_LENGTH, "0"); //$NON-NLS-1$
+	
+		HttpClient client = new HttpClient(m_scanProvider.getAuthenticationProvider().getProxy());
+		HttpResponse response = client.get(request_url, request_headers, null);
+    	
+		if (response.getResponseCode() != HttpsURLConnection.HTTP_OK) {
+		    return null;
+		}
+    	
+    	JSONObject obj = (JSONObject) response.getResponseBodyAsJSON();
+    	return obj.getString(STATUS);
+    }
 }
