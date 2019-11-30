@@ -7,7 +7,6 @@ package com.hcl.appscan.sdk.auth;
 
 import com.hcl.appscan.sdk.CoreConstants;
 import static com.hcl.appscan.sdk.CoreConstants.API_BLUEMIX_LOGIN;
-import static com.hcl.appscan.sdk.CoreConstants.API_IBM_LOGIN;
 import static com.hcl.appscan.sdk.CoreConstants.API_KEY_LOGIN;
 import static com.hcl.appscan.sdk.CoreConstants.API_SCANS;
 import static com.hcl.appscan.sdk.CoreConstants.BINDING_ID;
