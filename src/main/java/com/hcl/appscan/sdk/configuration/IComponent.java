@@ -1,16 +1,12 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+/**
+ * © Copyright HCL Technologies Ltd. 2019. 
+ * LICENSE: Apache License, Version 2.0 https://www.apache.org/licenses/LICENSE-2.0
  */
+
 package com.hcl.appscan.sdk.configuration;
 
 import java.util.Map;
 
-/**
- *
- * @author anurag-s
- */
 public interface IComponent {
     
     /**
@@ -20,10 +16,9 @@ public interface IComponent {
 	public Map<String, String> getComponents();
 	
 	/**
-	 * Gets the name of the component with the given id. 
+	 * Gets the name of the component with the given id.
 	 * @param id The id of the component.
 	 * @return The component name.
 	 */
 	public String getComponentName(String id);
-    
 }
