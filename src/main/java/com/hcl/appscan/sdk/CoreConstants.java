@@ -1,6 +1,6 @@
 /**
  * © Copyright IBM Corporation 2016.
- * © Copyright HCL Technologies Ltd. 2017,2018. 
+ * © Copyright HCL Technologies Ltd. 2017,2019. 
  * LICENSE: Apache License, Version 2.0 https://www.apache.org/licenses/LICENSE-2.0
  */
 
@@ -97,17 +97,16 @@ public interface CoreConstants {
 	String ERROR_SUBMITTING_SCAN		= "error.submit.scan";									//$NON-NLS-1$
 	String ERROR_UPLOADING_FILE			= "error.upload.file";									//$NON-NLS-1$
         
-        // ASE APIs
-        String ASE_API                          = "/api";                                                                                //$NON-NLS-1$
-        String ASE_APPS                         = ASE_API+ "/applications";                                                              //$NON-NLS-1$ 
-        String ASE_FOLDERS                         = ASE_API+ "/folders";                                                              //$NON-NLS-1$ 
-        String ASE_TEST_POLICIES                         = ASE_API+ "/testPolicies";
-        String ASE_AGENT_SERVER                         = ASE_API+ "/agentServer";                                                              //$NON-NLS-1$ 
-        String ASE_LOGIN_API                    ="/api/keylogin/apikeylogin";
-        String ASE_KEY_ID						= "keyId";												//$NON-NLS-1$
-	String ASE_KEY_SECRET					= "keySecret";	
-        String ASE_NAME_ATTRIBUTE                               ="name";                              //$NON-NLS-1$
-        String ASE_ID_ATTRIBUTE                                 ="id";
-        String ASE_CREATEJOB_TEMPLATE_ID                        ="/api/jobs/%s/dastconfig/createjob";
-	
+    // ASE APIs
+    String ASE_API                      = "/api";                                               //$NON-NLS-1$
+    String ASE_APPS                     = ASE_API+ "/applications";                             //$NON-NLS-1$ 
+    String ASE_FOLDERS                  = ASE_API+ "/folders";                                  //$NON-NLS-1$ 
+    String ASE_TEST_POLICIES            = ASE_API+ "/testPolicies";                             //$NON-NLS-1$
+    String ASE_AGENT_SERVER             = ASE_API+ "/agentServer";                              //$NON-NLS-1$ 
+    String ASE_LOGIN_API                = "/api/keylogin/apikeylogin";                          //$NON-NLS-1$
+    String ASE_KEY_ID                   = "keyId";                                              //$NON-NLS-1$
+    String ASE_KEY_SECRET               = "keySecret";                                          //$NON-NLS-1$
+    String ASE_NAME_ATTRIBUTE           = "name";                                               //$NON-NLS-1$
+    String ASE_ID_ATTRIBUTE             = "id";                                                 //$NON-NLS-1$
+    String ASE_CREATEJOB_TEMPLATE_ID    = "/api/jobs/%s/dastconfig/createjob";                  //$NON-NLS-1$
 }

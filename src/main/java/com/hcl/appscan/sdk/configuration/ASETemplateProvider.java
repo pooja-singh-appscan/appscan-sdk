@@ -1,8 +1,8 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+/**
+ * © Copyright HCL Technologies Ltd. 2019. 
+ * LICENSE: Apache License, Version 2.0 https://www.apache.org/licenses/LICENSE-2.0
  */
+
 package com.hcl.appscan.sdk.configuration;
 
 import com.hcl.appscan.sdk.auth.IASEAuthenticationProvider;
@@ -15,10 +15,7 @@ import org.apache.wink.json4j.JSONArray;
 import org.apache.wink.json4j.JSONException;
 import org.apache.wink.json4j.JSONObject;
 
-/**
- *
- * @author anurag-s
- */
+
 public class ASETemplateProvider implements IComponent{
     private Map<String, String> m_templates;
     private IASEAuthenticationProvider m_authProvider;
@@ -26,16 +23,13 @@ public class ASETemplateProvider implements IComponent{
     public ASETemplateProvider(IASEAuthenticationProvider provider) {
         this.m_authProvider=provider;
     }   
-    
-    
 
     @Override
     public Map<String, String> getComponents() {
         if(m_templates == null)
-		loadTemplates();
+        	loadTemplates();
 		return m_templates;
-        }
-    
+    }   
 
     @Override
     public String getComponentName(String id) {
@@ -46,11 +40,11 @@ public class ASETemplateProvider implements IComponent{
         if(m_authProvider.isTokenExpired())
 			return;
 		
-		m_templates = new HashMap<String, String>();
-		//String url =  m_authProvider.getServer() + ASE_APPS + "columns=name&sortBy=%2Bname"; //$NON-NLS-1$
-                String url =  m_authProvider.getServer() + "/api/templates";
-		Map<String, String> headers = m_authProvider.getAuthorizationHeader(true);
-		//headers.putAll(Collections.singletonMap("Range", "items=0-999999")); //$NON-NLS-1$ //$NON-NLS-2$
+        m_templates = new HashMap<String, String>();
+        //String url =  m_authProvider.getServer() + ASE_APPS + "columns=name&sortBy=%2Bname"; //$NON-NLS-1$
+        String url =  m_authProvider.getServer() + "/api/templates";
+        Map<String, String> headers = m_authProvider.getAuthorizationHeader(true);
+        //headers.putAll(Collections.singletonMap("Range", "items=0-999999")); //$NON-NLS-1$ //$NON-NLS-2$
 		
 		HttpsClient client = new HttpsClient();
 		
@@ -74,6 +68,5 @@ public class ASETemplateProvider implements IComponent{
 		catch(IOException | JSONException e) {
 			m_templates = null;
 		}
-    }
-    
+    }    
 }

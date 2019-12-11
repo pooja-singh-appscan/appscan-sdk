@@ -1,25 +1,18 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+/**
+ * © Copyright HCL Technologies Ltd. 2019. 
+ * LICENSE: Apache License, Version 2.0 https://www.apache.org/licenses/LICENSE-2.0
  */
+
 package com.hcl.appscan.sdk.scanners.ase;
 
-import com.hcl.appscan.sdk.auth.IASEAuthenticationProvider;
 import com.hcl.appscan.sdk.auth.IAuthenticationProvider;
 import com.hcl.appscan.sdk.logging.IProgress;
 import com.hcl.appscan.sdk.scan.ASEScanServiceProvider;
-import com.hcl.appscan.sdk.scan.CloudScanServiceProvider;
 import com.hcl.appscan.sdk.scan.IScan;
 import com.hcl.appscan.sdk.scan.IScanFactory;
 import com.hcl.appscan.sdk.scan.IScanServiceProvider;
-import com.hcl.appscan.sdk.scanners.dynamic.DASTScan;
 import java.util.Map;
 
-/**
- *
- * @author anurag-s
- */
 public class ASEScanFactory implements IScanFactory{
 
     @Override
@@ -32,5 +25,4 @@ public class ASEScanFactory implements IScanFactory{
     public String getType() {
         return ASEConstants.ASE_DAST;
     }
-    
 }

@@ -1,15 +1,10 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+/**
+ * © Copyright HCL Technologies Ltd. 2019. 
+ * LICENSE: Apache License, Version 2.0 https://www.apache.org/licenses/LICENSE-2.0
  */
+
 package com.hcl.appscan.sdk.scanners.ase;
 
-/**
- *
- * @author anurag-s
- */
 public interface ASEConstants {
-    String ASE_DAST							= "Appscan Enterprise Dynamic Analyzer";				//$NON-NLS-1$
-    
+    String ASE_DAST		= "Appscan Enterprise Dynamic Analyzer";				//$NON-NLS-1$    
 }
