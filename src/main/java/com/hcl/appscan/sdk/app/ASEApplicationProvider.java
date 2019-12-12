@@ -30,7 +30,7 @@ public class ASEApplicationProvider implements IApplicationProvider, CoreConstan
     public Map<String, String> getApplications() {
         if(m_applications == null)
         	loadApplications();
-		return m_applications;
+        return m_applications;
     }
 
     @Override
