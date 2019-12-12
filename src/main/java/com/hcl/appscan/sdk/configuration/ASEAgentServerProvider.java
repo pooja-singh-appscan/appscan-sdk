@@ -27,8 +27,8 @@ public class ASEAgentServerProvider implements IComponent{
     @Override
     public Map<String, String> getComponents() {
         if(m_agentServers == null)
-		loadAgentServers();
-		return m_agentServers;
+        	loadAgentServers();
+        return m_agentServers;
     }
     
     @Override
