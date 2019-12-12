@@ -25,7 +25,7 @@ import org.apache.wink.json4j.JSONException;
 import org.apache.wink.json4j.JSONObject;
 
 public class ASEScanServiceProvider implements IScanServiceProvider, Serializable, CoreConstants{
-    private IProgress m_progress;
+	private IProgress m_progress;
 	private IASEAuthenticationProvider m_authProvider;
 	
 	public ASEScanServiceProvider(IProgress progress, IAuthenticationProvider authProvider) {
@@ -37,18 +37,18 @@ public class ASEScanServiceProvider implements IScanServiceProvider, Serializabl
     public String createAndExecuteScan(String type, Map<String, String> params) {
         //if(loginExpired() || !verifyApplication(params.get("applicationId")))
         if(loginExpired())
-			return null;
+           return null;
 		
-		m_progress.setStatus(new Message(Message.INFO, Messages.getMessage(EXECUTING_SCAN)));
+        m_progress.setStatus(new Message(Message.INFO, Messages.getMessage(EXECUTING_SCAN)));
         // TODO : correct it .
         String templateId=params.get("templateId");
         params.remove("templateId");
 		
-		//String request_url =  m_authProvider.getServer() + String.format(ASE_CREATEJOB_TEMPLATE_ID, templateId);
+        //String request_url =  m_authProvider.getServer() + String.format(ASE_CREATEJOB_TEMPLATE_ID, templateId);
         String request_url = m_authProvider.getServer() + String.format(ASE_CREATEJOB_TEMPLATE_ID, templateId);
-		Map<String, String> request_headers = m_authProvider.getAuthorizationHeader(true);
+        Map<String, String> request_headers = m_authProvider.getAuthorizationHeader(true);
         request_headers.put(CONTENT_TYPE, "application/json; utf-8"); //$NON-NLS-1$
-		request_headers.put(CHARSET, UTF8);
+        request_headers.put(CHARSET, UTF8);
         request_headers.put("Accept", "application/json"); //$NON-NLS-1$ //$NON-NLS-2$
 		
 		HttpsClient client = new HttpsClient();
@@ -74,7 +74,7 @@ public class ASEScanServiceProvider implements IScanServiceProvider, Serializabl
     }
     
     private boolean loginExpired() {
-		if(m_authProvider.isTokenExpired()) {
+        if(m_authProvider.isTokenExpired()) {
 			m_progress.setStatus(new Message(Message.ERROR, Messages.getMessage(ERROR_LOGIN_EXPIRED)));
 			return true;
 		}

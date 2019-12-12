@@ -26,8 +26,8 @@ import org.apache.wink.json4j.JSONObject;
 
 public class HttpsClient {
     private String m_boundary;
-	private long m_totalMultipartLength;
-	private long m_uploadedMultipartLength;
+    private long m_totalMultipartLength;
+    private long m_uploadedMultipartLength;
     private static final String CR_LF = "\r\n"; //$NON-NLS-1$
     private static final String TWO_HYPHENS = "--"; //$NON-NLS-1$
     
@@ -271,22 +271,22 @@ public class HttpsClient {
 			URL requestURL = new URL(url);
                 
             try {
-                SSLContext sc = SSLContext.getInstance("TLS");
-                sc.init(null, new TrustManager[] { new TrustAllX509TrustManager() }, new java.security.SecureRandom());
-                HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
-                HttpsURLConnection.setDefaultHostnameVerifier( new HostnameVerifier() {
-                public boolean verify(String string,SSLSession ssls) {
-                	return true;
+	                SSLContext sc = SSLContext.getInstance("TLS");
+	                sc.init(null, new TrustManager[] { new TrustAllX509TrustManager() }, new java.security.SecureRandom());
+	                HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
+	                HttpsURLConnection.setDefaultHostnameVerifier( new HostnameVerifier() {
+	                public boolean verify(String string,SSLSession ssls) {
+	                	return true;
                 }	
                });
             }
             catch(Exception e){
                 e.printStackTrace();
             }
-	        HttpsURLConnection conn = null;
-	        conn = (HttpsURLConnection) requestURL.openConnection();
-	        conn.setRequestMethod(method.name());
-	        conn.setReadTimeout(0);
+			HttpsURLConnection conn = null;
+			conn = (HttpsURLConnection) requestURL.openConnection();
+			conn.setRequestMethod(method.name());
+			conn.setReadTimeout(0);
 
 			// HTTP headers
 			if (headerProperties != null) {
