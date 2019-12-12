@@ -1,26 +1,16 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+/**
+ * © Copyright HCL Technologies Ltd. 2019. 
+ * LICENSE: Apache License, Version 2.0 https://www.apache.org/licenses/LICENSE-2.0
  */
+
 package com.hcl.appscan.sdk.scan;
 
 import com.hcl.appscan.sdk.CoreConstants;
-import static com.hcl.appscan.sdk.CoreConstants.API_SCANNER;
-import static com.hcl.appscan.sdk.CoreConstants.APP_ID;
-import static com.hcl.appscan.sdk.CoreConstants.CREATE_SCAN_SUCCESS;
-import static com.hcl.appscan.sdk.CoreConstants.ERROR_INVALID_APP;
-import static com.hcl.appscan.sdk.CoreConstants.ERROR_SUBMITTING_SCAN;
-import static com.hcl.appscan.sdk.CoreConstants.EXECUTING_SCAN;
-import static com.hcl.appscan.sdk.CoreConstants.ID;
-import static com.hcl.appscan.sdk.CoreConstants.MESSAGE;
 import com.hcl.appscan.sdk.Messages;
 import com.hcl.appscan.sdk.app.ASEApplicationProvider;
-import com.hcl.appscan.sdk.app.CloudApplicationProvider;
 import com.hcl.appscan.sdk.app.IApplicationProvider;
 import com.hcl.appscan.sdk.auth.IASEAuthenticationProvider;
 import com.hcl.appscan.sdk.auth.IAuthenticationProvider;
-import com.hcl.appscan.sdk.http.HttpClient;
 import com.hcl.appscan.sdk.http.HttpResponse;
 import com.hcl.appscan.sdk.http.HttpsClient;
 import com.hcl.appscan.sdk.logging.IProgress;
@@ -34,10 +24,6 @@ import org.apache.wink.json4j.JSONArray;
 import org.apache.wink.json4j.JSONException;
 import org.apache.wink.json4j.JSONObject;
 
-/**
- *
- * @author anurag-s
- */
 public class ASEScanServiceProvider implements IScanServiceProvider, Serializable, CoreConstants{
     private IProgress m_progress;
 	private IASEAuthenticationProvider m_authProvider;
@@ -50,22 +36,22 @@ public class ASEScanServiceProvider implements IScanServiceProvider, Serializabl
     @Override
     public String createAndExecuteScan(String type, Map<String, String> params) {
         //if(loginExpired() || !verifyApplication(params.get("applicationId")))
-                if(loginExpired())
+        if(loginExpired())
 			return null;
 		
 		m_progress.setStatus(new Message(Message.INFO, Messages.getMessage(EXECUTING_SCAN)));
-                // TODO : correct it .
-                String templateId=params.get("templateId");
-                params.remove("templateId");
+        // TODO : correct it .
+        String templateId=params.get("templateId");
+        params.remove("templateId");
 		
 		//String request_url =  m_authProvider.getServer() + String.format(ASE_CREATEJOB_TEMPLATE_ID, templateId);
-                String request_url = m_authProvider.getServer() + String.format(ASE_CREATEJOB_TEMPLATE_ID, templateId);
+        String request_url = m_authProvider.getServer() + String.format(ASE_CREATEJOB_TEMPLATE_ID, templateId);
 		Map<String, String> request_headers = m_authProvider.getAuthorizationHeader(true);
-                request_headers.put(CONTENT_TYPE, "application/json; utf-8"); //$NON-NLS-1$
+        request_headers.put(CONTENT_TYPE, "application/json; utf-8"); //$NON-NLS-1$
 		request_headers.put(CHARSET, UTF8);
-                request_headers.put("Accept", "application/json"); //$NON-NLS-1$ //$NON-NLS-2$
+        request_headers.put("Accept", "application/json"); //$NON-NLS-1$ //$NON-NLS-2$
 		
-		      HttpsClient client = new HttpsClient();
+		HttpsClient client = new HttpsClient();
 		
 		try {
 			HttpResponse response = client.postForm(request_url, request_headers, params);
@@ -94,6 +80,7 @@ public class ASEScanServiceProvider implements IScanServiceProvider, Serializabl
 		}
 		return false;
 	}
+    
     private boolean verifyApplication(String appId) {
 		if(appId != null && !appId.trim().equals("")) { //$NON-NLS-1$
 			IApplicationProvider provider = new ASEApplicationProvider(m_authProvider);
@@ -122,13 +109,10 @@ public class ASEScanServiceProvider implements IScanServiceProvider, Serializabl
     @Override
     public IAuthenticationProvider getAuthenticationProvider() {
         return m_authProvider;
-    }
-    
-    
+    }    
 
     @Override
     public void setProgress(IProgress progress) {
         m_progress = progress;
-    }
-    
+    } 
 }

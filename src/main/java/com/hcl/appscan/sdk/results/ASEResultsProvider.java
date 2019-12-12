@@ -1,8 +1,8 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+/**
+ * © Copyright HCL Technologies Ltd. 2019. 
+ * LICENSE: Apache License, Version 2.0 https://www.apache.org/licenses/LICENSE-2.0
  */
+
 package com.hcl.appscan.sdk.results;
 
 import com.hcl.appscan.sdk.CoreConstants;
@@ -12,10 +12,6 @@ import java.io.File;
 import java.io.Serializable;
 import java.util.Collection;
 
-/**
- *
- * @author anurag-s
- */
 public class ASEResultsProvider implements IResultsProvider, Serializable, CoreConstants{
 
     public ASEResultsProvider(String m_scanId, String type, IScanServiceProvider m_serviceProvider, IProgress m_progress) {
@@ -85,6 +81,5 @@ public class ASEResultsProvider implements IResultsProvider, Serializable, CoreC
     @Override
     public void setProgress(IProgress progress) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-    
+    }    
 }

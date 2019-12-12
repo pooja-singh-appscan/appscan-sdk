@@ -40,8 +40,8 @@ public class ASEScan extends ASoCScan implements ScanConstants{
         Map<String, String> params = getParams(getProperties());
         String id=getServiceProvider().createAndExecuteScan(null, params);        
         setScanId(id);
-		if(getScanId() == null)
-			throw new ScannerException(Messages.getMessage(ERROR_CREATING_SCAN));
+        if(getScanId() == null)
+        	throw new ScannerException(Messages.getMessage(ERROR_CREATING_SCAN));
     }
     
     private Map<String,String> getParams(Map<String,String> properties){
@@ -62,8 +62,8 @@ public class ASEScan extends ASoCScan implements ScanConstants{
     @Override
     public IResultsProvider getResultsProvider() {
         ASEResultsProvider provider = new ASEResultsProvider(getScanId(), getType(), getServiceProvider(), getProgress());
-		provider.setReportFormat(getReportFormat());
-		return provider;
+        provider.setReportFormat(getReportFormat());
+        return provider;
     }
 
     @Override

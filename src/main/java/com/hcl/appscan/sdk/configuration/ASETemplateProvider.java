@@ -28,7 +28,7 @@ public class ASETemplateProvider implements IComponent{
     public Map<String, String> getComponents() {
         if(m_templates == null)
         	loadTemplates();
-		return m_templates;
+        return m_templates;
     }   
 
     @Override

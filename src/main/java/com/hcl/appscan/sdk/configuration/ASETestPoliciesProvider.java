@@ -27,7 +27,7 @@ public class ASETestPoliciesProvider implements IComponent{
     public Map<String, String> getComponents() {
         if(m_policies == null)
         	loadPolicies();
-		return m_policies;
+        return m_policies;
     }
 
     @Override

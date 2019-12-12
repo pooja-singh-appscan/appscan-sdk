@@ -28,7 +28,7 @@ public class ASEFolderProvider implements IComponent{
     public Map<String, String> getComponents() {
         if(m_folders == null)
         	loadFolders();
-		return m_folders;
+        return m_folders;
     }    
 
     @Override
@@ -38,7 +38,7 @@ public class ASEFolderProvider implements IComponent{
     
     private void loadFolders() {
         if(m_authProvider.isTokenExpired())
-			return;
+            return;
 		
         m_folders = new HashMap<String, String>();
         //String url =  m_authProvider.getServer() + ASE_APPS + "columns=name&sortBy=%2Bname"; //$NON-NLS-1$
@@ -49,8 +49,7 @@ public class ASEFolderProvider implements IComponent{
         HttpsClient client = new HttpsClient();
 		
 		try {
-			HttpResponse response = client.get(url, headers, null);
-			
+			HttpResponse response = client.get(url, headers, null);			
 			if (!response.isSuccess())
 				return;
 		

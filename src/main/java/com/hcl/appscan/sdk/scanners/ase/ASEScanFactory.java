@@ -18,7 +18,7 @@ public class ASEScanFactory implements IScanFactory{
     @Override
     public IScan create(Map<String, String> properties, IProgress progress, IAuthenticationProvider authProvider) {
         IScanServiceProvider serviceProvider = new ASEScanServiceProvider(progress, authProvider);
-		return new ASEScan(properties, progress, serviceProvider);
+        return new ASEScan(properties, progress, serviceProvider);
     }
 
     @Override
