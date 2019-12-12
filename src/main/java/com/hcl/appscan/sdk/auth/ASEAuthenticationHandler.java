@@ -41,30 +41,30 @@ public class ASEAuthenticationHandler implements CoreConstants{
 		Map<String, String> headers = new HashMap<String, String>();
 		headers.put(CONTENT_TYPE, "application/json; utf-8"); //$NON-NLS-1$
 		headers.put(CHARSET, UTF8);
-        headers.put("Accept", "application/json"); //$NON-NLS-1$ //$NON-NLS-2$
+		headers.put("Accept", "application/json"); //$NON-NLS-1$ //$NON-NLS-2$
 		
 		Map<String, String> params = new HashMap<String, String>();
-        params.put(ASE_KEY_ID, username);
+		params.put(ASE_KEY_ID, username);
 		params.put(ASE_KEY_SECRET, password);
-        url=url+"/api/keylogin/apikeylogin";
+		url=url+"/api/keylogin/apikeylogin";
 
 		HttpsClient client = new HttpsClient();
-	    HttpResponse response = client.postForm(url, headers, params);
-        cookies=response.getResponseHeaders().get("Set-Cookie");
+		HttpResponse response = client.postForm(url, headers, params);
+		cookies=response.getResponseHeaders().get("Set-Cookie");
 	    
 		if(response.getResponseCode() == HttpsURLConnection.HTTP_OK || response.getResponseCode() == HttpsURLConnection.HTTP_CREATED) {
 			if(persist) {
 				JSONObject object = (JSONObject)response.getResponseBodyAsJSON();
 				String token = object.getString("sessionId");
-                List<String> cookies =response.getResponseHeaders().get("Set-Cookie");                                       
+				List<String> cookies =response.getResponseHeaders().get("Set-Cookie");                                       
 				m_authProvider.saveConnection(token);
-                m_authProvider.setCookies(cookies);
+				m_authProvider.setCookies(cookies);
 			}
 			return true;
 		}
 		else {
 			String reason = response.getResponseBodyAsString() == null ?
-					Messages.getMessage("message.unknown") : response.getResponseBodyAsString(); //$NON-NLS-1$
+			Messages.getMessage("message.unknown") : response.getResponseBodyAsString(); //$NON-NLS-1$
 			throw new HttpException(response.getResponseCode(), reason);
 		}
 	}
@@ -81,7 +81,7 @@ public class ASEAuthenticationHandler implements CoreConstants{
 		Map<String, String> headers = m_authProvider.getAuthorizationHeader(false);
 		headers.put("Accept", "application/json"); //$NON-NLS-1$ //$NON-NLS-2$
 		headers.put(CHARSET, UTF8);
-        headers.put("Accept", "application/json"); //$NON-NLS-1$ //$NON-NLS-2$
+		headers.put("Accept", "application/json"); //$NON-NLS-1$ //$NON-NLS-2$
 		
 		HttpsClient httpClient = new HttpsClient();
 		HttpResponse httpResponse;
