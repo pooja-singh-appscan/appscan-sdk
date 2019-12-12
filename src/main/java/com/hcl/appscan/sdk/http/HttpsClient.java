@@ -1,18 +1,14 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+/**
+ * © Copyright HCL Technologies Ltd. 2019. 
+ * LICENSE: Apache License, Version 2.0 https://www.apache.org/licenses/LICENSE-2.0
  */
+
 package com.hcl.appscan.sdk.http;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.Socket;
 //import java.net.HttpsURLConnection;
 import java.net.URL;
-import java.net.URLEncoder;
-import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.Iterator;
 import java.util.List;
@@ -21,19 +17,13 @@ import java.util.Map;
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLEngine;
 import javax.net.ssl.SSLSession;
 import javax.net.ssl.TrustManager;
 //import javax.net.ssl.X509TrustManager;
 //import java.security.cert.X509Certificate;
-import javax.net.ssl.X509ExtendedTrustManager;
 import javax.net.ssl.X509TrustManager;
 import org.apache.wink.json4j.JSONObject;
 
-/**
- *
- * @author anurag-s
- */
 public class HttpsClient {
     private String m_boundary;
 	private long m_totalMultipartLength;
@@ -278,36 +268,34 @@ public class HttpsClient {
 	
 	private HttpsURLConnection makeConnection(String url, Method method,
 			Map<String, String> headerProperties) throws IOException {
-		URL requestURL = new URL(url);
+			URL requestURL = new URL(url);
                 
-                try {
-                    SSLContext sc = SSLContext.getInstance("TLS");
-sc.init(null, new TrustManager[] { new TrustAllX509TrustManager() }, new java.security.SecureRandom());
-HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
-HttpsURLConnection.setDefaultHostnameVerifier( new HostnameVerifier(){
-    public boolean verify(String string,SSLSession ssls) {
-        return true;
-    }
-});
-                }
-                catch(Exception e){
-                    e.printStackTrace();
-                }
-		          HttpsURLConnection conn = null;
-		conn = (HttpsURLConnection) requestURL.openConnection();
-		conn.setRequestMethod(method.name());
-		conn.setReadTimeout(0);
+            try {
+                SSLContext sc = SSLContext.getInstance("TLS");
+                sc.init(null, new TrustManager[] { new TrustAllX509TrustManager() }, new java.security.SecureRandom());
+                HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
+                HttpsURLConnection.setDefaultHostnameVerifier( new HostnameVerifier() {
+                public boolean verify(String string,SSLSession ssls) {
+                	return true;
+                }	
+               });
+            }
+            catch(Exception e){
+                e.printStackTrace();
+            }
+	        HttpsURLConnection conn = null;
+	        conn = (HttpsURLConnection) requestURL.openConnection();
+	        conn.setRequestMethod(method.name());
+	        conn.setReadTimeout(0);
 
-		// HTTP headers
-		if (headerProperties != null) {
-			for (String key : headerProperties.keySet()) {
-				conn.setRequestProperty(key, headerProperties.get(key));
+			// HTTP headers
+			if (headerProperties != null) {
+				for (String key : headerProperties.keySet()) {
+					conn.setRequestProperty(key, headerProperties.get(key));
+				}
 			}
-		}
-		return conn;
-	}
-        
-        
+			return conn;
+	}       
 	
 	private long getTotalPartsLength(List<HttpPart> parts) {
 		long totalSize = 0;
@@ -355,17 +343,16 @@ HttpsURLConnection.setDefaultHostnameVerifier( new HostnameVerifier(){
         }
 }
 
-class TrustAllX509TrustManager implements X509TrustManager {
-    public X509Certificate[] getAcceptedIssuers() {
-        return new X509Certificate[0];
-    }
-
-    public void checkClientTrusted(java.security.cert.X509Certificate[] certs,
-            String authType) {
-    }
-
-    public void checkServerTrusted(java.security.cert.X509Certificate[] certs,
-            String authType) {
-    }
-
+	class TrustAllX509TrustManager implements X509TrustManager {
+	    public X509Certificate[] getAcceptedIssuers() {
+	        return new X509Certificate[0];
+	    }
+	
+	    public void checkClientTrusted(java.security.cert.X509Certificate[] certs,
+	            String authType) {
+	    }
+	
+	    public void checkServerTrusted(java.security.cert.X509Certificate[] certs,
+	            String authType) {
+	    }
 }

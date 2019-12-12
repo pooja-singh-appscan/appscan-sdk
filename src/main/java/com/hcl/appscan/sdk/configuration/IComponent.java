@@ -9,7 +9,7 @@ import java.util.Map;
 
 public interface IComponent {
     
-    /**
+	/**
 	 * Gets the available components for a component type.
 	 * @return A Map of components, keyed by the component id.
 	 */

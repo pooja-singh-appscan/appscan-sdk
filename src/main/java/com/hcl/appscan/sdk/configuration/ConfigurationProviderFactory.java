@@ -26,7 +26,7 @@ public class ConfigurationProviderFactory {
 			comp = new ASETemplateProvider(provider);
 			break;
 		default:
-				break;
+			break;
 		}
 		return comp;
 	}    
