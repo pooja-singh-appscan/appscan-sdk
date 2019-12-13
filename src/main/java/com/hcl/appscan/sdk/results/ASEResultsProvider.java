@@ -6,85 +6,319 @@
 package com.hcl.appscan.sdk.results;
 
 import com.hcl.appscan.sdk.CoreConstants;
+import static com.hcl.appscan.sdk.CoreConstants.API_REPORT_STATUS;
+import static com.hcl.appscan.sdk.CoreConstants.API_SCANS_REPORT;
+import static com.hcl.appscan.sdk.CoreConstants.CONTENT_LENGTH;
+import static com.hcl.appscan.sdk.CoreConstants.DEFAULT_RESULT_NAME;
+import static com.hcl.appscan.sdk.CoreConstants.ERROR_GETTING_DETAILS;
+import static com.hcl.appscan.sdk.CoreConstants.ERROR_GETTING_RESULT;
+import static com.hcl.appscan.sdk.CoreConstants.ERROR_LOGIN_EXPIRED;
+import static com.hcl.appscan.sdk.CoreConstants.FAILED;
+import static com.hcl.appscan.sdk.CoreConstants.HIGH_ISSUES;
+import static com.hcl.appscan.sdk.CoreConstants.INFO_ISSUES;
+import static com.hcl.appscan.sdk.CoreConstants.INQUEUE;
+import static com.hcl.appscan.sdk.CoreConstants.LATEST_EXECUTION;
+import static com.hcl.appscan.sdk.CoreConstants.LOW_ISSUES;
+import static com.hcl.appscan.sdk.CoreConstants.MEDIUM_ISSUES;
+import static com.hcl.appscan.sdk.CoreConstants.MESSAGE;
+import static com.hcl.appscan.sdk.CoreConstants.RUNNING;
+import static com.hcl.appscan.sdk.CoreConstants.STATUS;
+import static com.hcl.appscan.sdk.CoreConstants.TOTAL_ISSUES;
+import com.hcl.appscan.sdk.Messages;
+import com.hcl.appscan.sdk.auth.IAuthenticationProvider;
+import com.hcl.appscan.sdk.http.HttpClient;
+import com.hcl.appscan.sdk.http.HttpResponse;
+import com.hcl.appscan.sdk.http.HttpsClient;
 import com.hcl.appscan.sdk.logging.IProgress;
+import com.hcl.appscan.sdk.logging.Message;
 import com.hcl.appscan.sdk.scan.IScanServiceProvider;
+import com.hcl.appscan.sdk.utils.SystemUtil;
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.net.ssl.HttpsURLConnection;
+import org.apache.wink.json4j.JSONArray;
+import org.apache.wink.json4j.JSONException;
+import org.apache.wink.json4j.JSONObject;
 
 /**
  *
  * @author anurag-s
  */
 public class ASEResultsProvider implements IResultsProvider, Serializable, CoreConstants{
+    private static final long serialVersionUID = 1L;
 
-    public ASEResultsProvider(String m_scanId, String type, IScanServiceProvider m_serviceProvider, IProgress m_progress) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+	private static String DEFAULT_REPORT_FORMAT = "html"; //$NON-NLS-1$
+	
+	private String m_type;
+	private String m_scanId;
+	private String m_status;
+	private   String m_reportFormat;
+	private   boolean m_hasResults;
+	private IScanServiceProvider m_scanProvider;
+	private IProgress m_progress;
+	
+	private int m_totalFindings;
+	private int m_highFindings;
+	private int m_mediumFindings;
+	private int m_lowFindings;
+	private int m_infoFindings;
+    public ASEResultsProvider(String scanId, String type, IScanServiceProvider provider, IProgress progress) {
+                m_type = type;
+		m_scanId = scanId;
+		m_hasResults = false;
+		m_scanProvider = provider;
+		m_progress = progress;
+		m_reportFormat = DEFAULT_REPORT_FORMAT;
     }
 
     @Override
     public boolean hasResults() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
+        //checkResults();
+		return m_hasResults;
+	}
+	
+        protected void setHasResult(boolean value){
+            m_hasResults=value;
+        }
 
     @Override
     public String getStatus() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        //checkResults();
+		return m_status;
     }
 
     @Override
-    public Collection<?> getFindings() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
+	public Collection<?> getFindings() {
+		return null;
+	}
+
+	@Override
+	public int getFindingsCount() {
+		//checkResults();
+		return m_totalFindings;
+	}
+
+	@Override
+	public int getHighCount() {
+		//checkResults();
+		return m_highFindings;
+	}
+
+	@Override
+	public int getMediumCount() {
+		//checkResults();
+		return m_mediumFindings;
+	}
+
+	@Override
+	public int getLowCount() {
+		//checkResults();
+		return m_lowFindings;
+	}
 
     @Override
-    public int getFindingsCount() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public int getHighCount() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public int getMediumCount() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public int getLowCount() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public int getInfoCount() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
+	public int getInfoCount() {
+		//checkResults();
+		return m_infoFindings;
+	}
 
     @Override
     public String getType() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return m_type;
     }
 
     @Override
-    public void getResultsFile(File destination, String format) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public void getResultsFile(File file, String format) {
+        if(format == null)
+			format = getResultsFormat();
+		
+		if(file != null && !file.exists()) {
+			try {
+				getReport(m_scanId, format, file);
+			} catch (IOException | JSONException e) {
+				m_progress.setStatus(new Message(Message.ERROR, Messages.getMessage(ERROR_GETTING_RESULT)), e);
+			}
+		}
     }
 
     @Override
     public String getResultsFormat() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return m_reportFormat;
     }
 
     @Override
     public void setReportFormat(String format) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        m_reportFormat=format;
     }
 
     @Override
     public void setProgress(IProgress progress) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        m_progress = progress;
+		m_scanProvider.setProgress(progress);
     }
     
+    private void loadResults() {
+		try {
+			JSONObject obj = m_scanProvider.getScanDetails(m_scanId);
+			obj = (JSONObject) obj.get(LATEST_EXECUTION);
+			m_status = obj.getString(STATUS);
+			if(m_status != null && !(m_status.equalsIgnoreCase(INQUEUE) || m_status.equalsIgnoreCase(RUNNING))) {
+				m_totalFindings = obj.getInt(TOTAL_ISSUES);
+				m_highFindings = obj.getInt(HIGH_ISSUES);
+				m_mediumFindings = obj.getInt(MEDIUM_ISSUES);
+				m_lowFindings = obj.getInt(LOW_ISSUES);
+				m_infoFindings = obj.getInt(INFO_ISSUES);
+				m_hasResults = true;
+			}
+		} catch (IOException | JSONException | NullPointerException e) {
+			m_progress.setStatus(new Message(Message.ERROR, Messages.getMessage(ERROR_GETTING_DETAILS, e.getMessage())), e);
+			m_status = FAILED;
+		}
+	}
+	
+	private void getReport(String scanId, String format, File destination) throws IOException, JSONException {
+		IAuthenticationProvider authProvider = m_scanProvider.getAuthenticationProvider();
+		if(authProvider.isTokenExpired()) {
+			m_progress.setStatus(new Message(Message.ERROR, Messages.getMessage(ERROR_LOGIN_EXPIRED)));
+			return;
+		}
+                String reportPackId=getReportPackId(scanId);
+	
+		String request_url = authProvider.getServer() + String.format(ASE_REPORTS, reportPackId);
+		Map<String, String> request_headers = authProvider.getAuthorizationHeader(true);
+		
+	
+		HttpsClient client = new HttpsClient();
+		HttpResponse response = client.get(request_url, request_headers, null);
+	
+		if (response.getResponseCode() == HttpsURLConnection.HTTP_OK) {
+			if (destination.isDirectory()) {
+				String fileName = DEFAULT_RESULT_NAME + "_" + SystemUtil.getTimeStamp() + "." + format; //$NON-NLS-1$ //$NON-NLS-2$
+				destination = new File(destination, fileName);
+			}
+	
+			destination.getParentFile().mkdirs();
+                        JSONObject json=(JSONObject) response.getResponseBodyAsJSON();
+                        JSONArray array=json.getJSONArray("report");
+                        JSONObject obj=null;
+                        for (int i=0;i<array.size();i++){
+                            if (array.getJSONObject(i).get("name").equals("Security Issues")){
+                                obj=array.getJSONObject(i);
+                            }
+                        }
+                        
+			FileWriter writer=new FileWriter(destination);
+                        writer.write(obj.toString());
+                                         
+		} else {
+			JSONObject object = (JSONObject) response.getResponseBodyAsJSON();
+			if (object.has(MESSAGE)) {
+				if (response.getResponseCode() == HttpsURLConnection.HTTP_BAD_REQUEST)
+					m_progress.setStatus(new Message(Message.ERROR, Messages.getMessage(ERROR_GETTING_RESULT)));
+				else
+					m_progress.setStatus(new Message(Message.ERROR, object.getString(MESSAGE)));
+			}
+		}
+	}
+	
+	private void checkResults() {
+		if(!m_hasResults)
+			loadResults();
+	}
+	
+    private String getReportStatus(String reportId) throws IOException, JSONException {
+		IAuthenticationProvider authProvider = m_scanProvider.getAuthenticationProvider();
+		if(authProvider.isTokenExpired()) {
+			m_progress.setStatus(new Message(Message.ERROR, Messages.getMessage(ERROR_LOGIN_EXPIRED)));
+			return FAILED;
+		}
+	
+		String request_url = authProvider.getServer() + String.format(API_REPORT_STATUS, reportId);
+		Map<String, String> request_headers = authProvider.getAuthorizationHeader(true);
+		request_headers.put(CONTENT_LENGTH, "0"); //$NON-NLS-1$
+	
+		HttpClient client = new HttpClient(m_scanProvider.getAuthenticationProvider().getProxy());
+		HttpResponse response = client.get(request_url, request_headers, null);
+    	
+		if (response.getResponseCode() != HttpsURLConnection.HTTP_OK) {
+		    return null;
+		}
+    	
+    	JSONObject obj = (JSONObject) response.getResponseBodyAsJSON();
+    	return obj.getString(STATUS);
+    }
+
+    /*private String getReportId(String scanId) {
+        IAuthenticationProvider authProvider = m_scanProvider.getAuthenticationProvider();
+		if(authProvider.isTokenExpired()) {
+			m_progress.setStatus(new Message(Message.ERROR, Messages.getMessage(ERROR_LOGIN_EXPIRED)));
+			return null;
+		}
+                
+                String reportPackId=getReportPackId(scanId);
+		String request_url = authProvider.getServer() + String.format(API_SCANS_REPORT, scanId, format);
+		Map<String, String> request_headers = authProvider.getAuthorizationHeader(true);
+		request_headers.put(CONTENT_LENGTH, "0"); //$NON-NLS-1$
+	
+		HttpClient client = new HttpClient(m_scanProvider.getAuthenticationProvider().getProxy());
+		HttpResponse response = client.get(request_url, request_headers, null);
+	
+		if (response.getResponseCode() == HttpsURLConnection.HTTP_OK) {
+			if (destination.isDirectory()) {
+				String fileName = DEFAULT_RESULT_NAME + "_" + SystemUtil.getTimeStamp() + "." + format; //$NON-NLS-1$ //$NON-NLS-2$
+				destination = new File(destination, fileName);
+			}
+	
+			destination.getParentFile().mkdirs();
+			response.getResponseBodyAsFile(destination);
+		} else {
+			JSONObject object = (JSONObject) response.getResponseBodyAsJSON();
+			if (object.has(MESSAGE)) {
+				if (response.getResponseCode() == HttpsURLConnection.HTTP_BAD_REQUEST)
+					m_progress.setStatus(new Message(Message.ERROR, Messages.getMessage(ERROR_GETTING_RESULT)));
+				else
+					m_progress.setStatus(new Message(Message.ERROR, object.getString(MESSAGE)));
+			}
+		}
+        
+    }*/
+
+    private String getReportPackId(String scanId) {
+        IAuthenticationProvider authProvider = m_scanProvider.getAuthenticationProvider();
+		if(authProvider.isTokenExpired()) {
+			m_progress.setStatus(new Message(Message.ERROR, Messages.getMessage(ERROR_LOGIN_EXPIRED)));
+			return null;
+		}
+                
+                
+		String request_url = authProvider.getServer() + String.format(ASE_REPORTPACK, scanId);
+		Map<String, String> request_headers = authProvider.getAuthorizationHeader(true);
+                request_headers.put(CONTENT_TYPE, "application/json; utf-8"); //$NON-NLS-1$
+		request_headers.put(CHARSET, UTF8);
+                request_headers.put("Accept", "application/json"); //$NON-NLS-1$ //$NON-NLS-2$
+		
+		HttpsClient client = new HttpsClient();
+		
+            try {
+                HttpResponse response = client.get(request_url, request_headers, null);
+                if (response.getResponseCode() == HttpsURLConnection.HTTP_OK){
+                    JSONObject object = (JSONObject) response.getResponseBodyAsJSON();
+                    JSONArray array=object.getJSONArray("");
+                    JSONObject obj=array.getJSONObject(0);
+                    return obj.getString("reportPackId");
+                }
+                else {
+                    m_progress.setStatus(new Message(Message.ERROR, Messages.getMessage(ERROR_GETTING_RESULT)));
+                }
+            } catch (IOException |JSONException ex) {
+                Logger.getLogger(ASEResultsProvider.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            return null;
+    }
 }

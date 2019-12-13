@@ -109,5 +109,8 @@ public interface CoreConstants {
         String ASE_NAME_ATTRIBUTE                               ="name";                              //$NON-NLS-1$
         String ASE_ID_ATTRIBUTE                                 ="id";
         String ASE_CREATEJOB_TEMPLATE_ID                        ="/api/jobs/%s/dastconfig/createjob";
-	
+        String ASE_GET_JOB                        ="/api/jobs/%s";
+        String ASE_RUN_JOB_ACTION                        ="/api/jobs/%s/actions";
+	String ASE_REPORTPACK                     = "/folderitems/%s/reportPack";
+        String ASE_REPORTS                        = "/folderitems/%s/reports";
 }
