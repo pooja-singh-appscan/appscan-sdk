@@ -18,6 +18,7 @@ import com.hcl.appscan.sdk.logging.Message;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.Map;
 import javax.net.ssl.HttpsURLConnection;
 import org.apache.wink.json4j.JSONArray;
@@ -35,6 +36,15 @@ public class ASEScanServiceProvider implements IScanServiceProvider, Serializabl
 
     @Override
     public String createAndExecuteScan(String type, Map<String, String> params) {
+        String jobId=createJob(params);
+        if (jobId!=null && runScanJob(jobId)){
+            return jobId;
+        }
+        return null;
+        
+    }
+    
+    private String createJob(Map<String, String> params){
         //if(loginExpired() || !verifyApplication(params.get("applicationId")))
         if(loginExpired())
            return null;
@@ -50,7 +60,7 @@ public class ASEScanServiceProvider implements IScanServiceProvider, Serializabl
         request_headers.put(CONTENT_TYPE, "application/json; utf-8"); //$NON-NLS-1$
         request_headers.put(CHARSET, UTF8);
         request_headers.put("Accept", "application/json"); //$NON-NLS-1$ //$NON-NLS-2$
-		
+				
 		HttpsClient client = new HttpsClient();
 		
 		try {
@@ -61,7 +71,7 @@ public class ASEScanServiceProvider implements IScanServiceProvider, Serializabl
 			
 			if (status == HttpsURLConnection.HTTP_CREATED) {
 				m_progress.setStatus(new Message(Message.INFO, Messages.getMessage(CREATE_SCAN_SUCCESS)));
-				return json.getString(ID);
+				return json.getString(ASE_ID_ATTRIBUTE);
 			}
 			else if (json != null && json.has(MESSAGE))
 				m_progress.setStatus(new Message(Message.ERROR, json.getString(MESSAGE)));
@@ -71,6 +81,49 @@ public class ASEScanServiceProvider implements IScanServiceProvider, Serializabl
 			m_progress.setStatus(new Message(Message.ERROR, Messages.getMessage(ERROR_SUBMITTING_SCAN, e.getLocalizedMessage())));
 		}
 		return null;
+        
+    }
+    
+    private boolean runScanJob(String jobId){
+        //if(loginExpired() || !verifyApplication(params.get("applicationId")))
+                if(loginExpired())
+			return false;
+		
+		m_progress.setStatus(new Message(Message.INFO, Messages.getMessage(EXECUTING_SCAN)));
+                // TODO : correct it .
+                String eTag=getEtag(jobId);
+                
+		//String request_url =  m_authProvider.getServer() + String.format(ASE_CREATEJOB_TEMPLATE_ID, templateId);
+                String request_url = m_authProvider.getServer() + String.format(ASE_RUN_JOB_ACTION, jobId);
+		Map<String, String> request_headers = m_authProvider.getAuthorizationHeader(true);
+                request_headers.put(CONTENT_TYPE, "application/json; utf-8"); //$NON-NLS-1$
+		request_headers.put(CHARSET, UTF8);
+                request_headers.put("Accept", "application/json"); //$NON-NLS-1$ //$NON-NLS-2$
+                request_headers.put("If-Match", eTag);
+                Map<String ,String> params= new HashMap<>();
+                params.put("type", "run");
+		
+		      HttpsClient client = new HttpsClient();
+		
+		try {
+			HttpResponse response = client.postForm(request_url, request_headers, params);
+			int status = response.getResponseCode();
+		
+			//JSONObject json = (JSONObject) response.getResponseBodyAsJSON();
+			
+			if (status == HttpsURLConnection.HTTP_OK) {
+				m_progress.setStatus(new Message(Message.INFO, Messages.getMessage(CREATE_SCAN_SUCCESS)));
+				return true;
+			}
+			//else if (json != null && json.has(MESSAGE))
+			//	m_progress.setStatus(new Message(Message.ERROR, json.getString(MESSAGE)));
+			else
+				m_progress.setStatus(new Message(Message.ERROR, Messages.getMessage(ERROR_SUBMITTING_SCAN, status)));
+		} catch(IOException e) {
+			m_progress.setStatus(new Message(Message.ERROR, Messages.getMessage(ERROR_SUBMITTING_SCAN, e.getLocalizedMessage())));
+		}
+		return false;
+        
     }
     
     private boolean loginExpired() {
@@ -114,5 +167,41 @@ public class ASEScanServiceProvider implements IScanServiceProvider, Serializabl
     @Override
     public void setProgress(IProgress progress) {
         m_progress = progress;
-    } 
+    }
+
+    private String getEtag(String jobId) {
+        //if(loginExpired() || !verifyApplication(params.get("applicationId")))
+                if(loginExpired())
+			return null;
+		
+		m_progress.setStatus(new Message(Message.INFO, Messages.getMessage(EXECUTING_SCAN)));
+                String request_url = m_authProvider.getServer() + String.format(ASE_GET_JOB, jobId);
+		Map<String, String> request_headers = m_authProvider.getAuthorizationHeader(true);
+                request_headers.put(CONTENT_TYPE, "application/json; utf-8"); //$NON-NLS-1$
+		request_headers.put(CHARSET, UTF8);
+                request_headers.put("Accept", "application/json"); //$NON-NLS-1$ //$NON-NLS-2$
+		
+		      HttpsClient client = new HttpsClient();
+		
+		try {
+			HttpResponse response = client.get(request_url, request_headers, null);
+			int status = response.getResponseCode();
+		
+			JSONObject json = (JSONObject) response.getResponseBodyAsJSON();
+			
+			if (status == HttpsURLConnection.HTTP_OK) {
+				m_progress.setStatus(new Message(Message.INFO, Messages.getMessage(CREATE_SCAN_SUCCESS)));
+				return response.getHeaderField("ETag");
+			}
+			else if (json != null && json.has(MESSAGE))
+				m_progress.setStatus(new Message(Message.ERROR, json.getString(MESSAGE)));
+			else
+				m_progress.setStatus(new Message(Message.ERROR, Messages.getMessage(ERROR_SUBMITTING_SCAN, status)));
+		} catch(IOException | JSONException e) {
+			m_progress.setStatus(new Message(Message.ERROR, Messages.getMessage(ERROR_SUBMITTING_SCAN, e.getLocalizedMessage())));
+		}
+		return null;
+        
+    }
+    
 }
