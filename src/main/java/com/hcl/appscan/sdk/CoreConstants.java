@@ -69,7 +69,9 @@ public interface CoreConstants {
 	String SACLIENT_INSTALL_DIR			= "SAClientInstall";									//$NON-NLS-1$
 
 	String RUNNING						= "Running";											//$NON-NLS-1$
-	String INQUEUE 						= "InQueue"; 											//$NON-NLS-1$
+	String WAITING_TO_RUN						= "Waiting to Run";											//$NON-NLS-1$
+        String STARTING						= "Starting";											//$NON-NLS-1$
+        String INQUEUE 						= "InQueue"; 											//$NON-NLS-1$
 	String READY						= "Ready";												//$NON-NLS-1$
 	String FAILED						= "Failed";												//$NON-NLS-1$
 
@@ -111,6 +113,7 @@ public interface CoreConstants {
         String ASE_CREATEJOB_TEMPLATE_ID                        ="/api/jobs/%s/dastconfig/createjob";
         String ASE_GET_JOB                        ="/api/jobs/%s";
         String ASE_RUN_JOB_ACTION                        ="/api/jobs/%s/actions";
-	String ASE_REPORTPACK                     = "/folderitems/%s/reportPack";
-        String ASE_REPORTS                        = "/folderitems/%s/reports";
+	String ASE_REPORTPACK                     = "/api/folderitems/%s/reportPack";
+        String ASE_REPORTS                        = "/api/folderitems/%s/reports";
+        String ASE_GET_FOLDERITEMS                = "/api/folderitems/%s";              
 }

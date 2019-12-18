@@ -23,7 +23,7 @@ public class ASEScan extends ASoCScan implements ScanConstants{
     private static final long serialVersionUID = 1L;
     
     //TODO : figure out the report format which ASE supports
-	private static final String REPORT_FORMAT = "pdf"; //$NON-NLS-1$
+	private static final String REPORT_FORMAT = "json"; //$NON-NLS-1$
 	
         
     public ASEScan(Map<String, String> properties, IScanServiceProvider provider) {
