@@ -15,7 +15,6 @@ import com.hcl.appscan.sdk.results.IResultsProvider;
 import com.hcl.appscan.sdk.scan.IScanServiceProvider;
 import com.hcl.appscan.sdk.scanners.ASoCScan;
 import com.hcl.appscan.sdk.scanners.ScanConstants;
-import java.util.HashMap;
 import java.util.Map;
 
 public class ASEScan extends ASoCScan implements ScanConstants{
@@ -37,21 +36,11 @@ public class ASEScan extends ASoCScan implements ScanConstants{
     @Override
     public void run() throws ScannerException, InvalidTargetException {
         
-        Map<String, String> params = getParams(getProperties());
-        String id=getServiceProvider().createAndExecuteScan(null, params);        
+        //Map<String, String> params = getParams(getProperties());
+        String id=getServiceProvider().createAndExecuteScan(null, getProperties());        
         setScanId(id);
         if(getScanId() == null)
         	throw new ScannerException(Messages.getMessage(ERROR_CREATING_SCAN));
-    }
-    
-    private Map<String,String> getParams(Map<String,String> properties){
-        Map<String,String> apiParams= new HashMap<>();
-        apiParams.put("testPolicyId", properties.get("testPolicyId"));
-        apiParams.put("folderId",properties.get("folderId"));
-        apiParams.put("applicationId",properties.get("applicationId"));
-        apiParams.put("name", properties.get("ScanName"));
-        apiParams.put("templateId", properties.get("templateId"));
-        return apiParams;
     }
 
     @Override

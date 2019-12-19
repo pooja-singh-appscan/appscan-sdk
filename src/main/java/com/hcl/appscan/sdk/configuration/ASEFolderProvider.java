@@ -40,11 +40,9 @@ public class ASEFolderProvider implements IComponent{
         if(m_authProvider.isTokenExpired())
             return;
 		
-        m_folders = new HashMap<String, String>();
-        //String url =  m_authProvider.getServer() + ASE_APPS + "columns=name&sortBy=%2Bname"; //$NON-NLS-1$
+        m_folders = new HashMap<String, String>();        
         String url =  m_authProvider.getServer() + CoreConstants.ASE_FOLDERS;
-        Map<String, String> headers = m_authProvider.getAuthorizationHeader(true);
-        //headers.putAll(Collections.singletonMap("Range", "items=0-999999")); //$NON-NLS-1$ //$NON-NLS-2$
+        Map<String, String> headers = m_authProvider.getAuthorizationHeader(true);       
 		
         HttpsClient client = new HttpsClient();
 		
@@ -61,7 +59,8 @@ public class ASEFolderProvider implements IComponent{
 				JSONObject object = array.getJSONObject(i);
 				String id = object.getString("folderId");
 				String path = object.getString("folderPath");
-				m_folders.put(id, path);
+				if(!id.equalsIgnoreCase("2")) // Ignore templates folder
+					m_folders.put(id, path);
 			}
 		}
 		catch(IOException | JSONException e) {

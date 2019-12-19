@@ -96,21 +96,33 @@ public interface CoreConstants {
 	String ERROR_INVALID_JOB_ID			= "error.invalid.job.id";								//$NON-NLS-1$
 	String ERROR_SUBMITTING_SCAN		= "error.submit.scan";									//$NON-NLS-1$
 	String ERROR_UPLOADING_FILE			= "error.upload.file";									//$NON-NLS-1$
-
-        // ASE APIs
-        String ASE_API                          = "/api";                                                                                //$NON-NLS-1$
-        String ASE_APPS                         = ASE_API+ "/applications";                                                              //$NON-NLS-1$
-        String ASE_FOLDERS                         = ASE_API+ "/folders";                                                              //$NON-NLS-1$
-        String ASE_TEST_POLICIES                         = ASE_API+ "/testPolicies";
-        String ASE_AGENT_SERVER                         = ASE_API+ "/agentServer";                                                              //$NON-NLS-1$
-        String ASE_LOGIN_API                    ="/api/keylogin/apikeylogin";
-        String ASE_KEY_ID						= "keyId";												//$NON-NLS-1$
-	String ASE_KEY_SECRET					= "keySecret";
-        String ASE_NAME_ATTRIBUTE                               ="name";                              //$NON-NLS-1$
-        String ASE_ID_ATTRIBUTE                                 ="id";
-        String ASE_CREATEJOB_TEMPLATE_ID                        ="/api/jobs/%s/dastconfig/createjob";
-        String ASE_GET_JOB                        ="/api/jobs/%s";
-        String ASE_RUN_JOB_ACTION                        ="/api/jobs/%s/actions";
-	String ASE_REPORTPACK                     = "/folderitems/%s/reportPack";
-        String ASE_REPORTS                        = "/folderitems/%s/reports";
+	
+	// ASE Status Messages
+	String CREATING_JOB                 = "message.creating.job";                               //$NON-NLS-1$
+	String CREATE_JOB_SUCCESS			= "message.created.job";								//$NON-NLS-1$
+	String ERROR_CREATE_JOB  			= "error.create.job";									//$NON-NLS-1$
+	String ERROR_UPDATE_JOB  			= "error.update.job";									//$NON-NLS-1$
+	String EXECUTING_JOB				= "message.running.job";								//$NON-NLS-1$
+	String EXECUTE_JOB_SUCCESS    		= "message.executed.job";								//$NON-NLS-1$
+	String ERROR_EXECUTE_JOB  			= "error.execute.job";									//$NON-NLS-1$
+	
+    // ASE APIs
+    String ASE_API                      = "/api";                                                //$NON-NLS-1$
+    String ASE_APPS                     = ASE_API + "/applications";                             //$NON-NLS-1$
+    String ASE_FOLDERS                  = ASE_API + "/folders";                                  //$NON-NLS-1$
+    String ASE_TEST_POLICIES            = ASE_API + "/testPolicies";                             //$NON-NLS-1$
+    String ASE_AGENT_SERVER             = ASE_API + "/agentServer";                              //$NON-NLS-1$
+    String ASE_UPDSCANT                 = ASE_API + "/jobs/%s/dastconfig/updatescant";           //$NON-NLS-1$
+    String ASE_UPDTRAFFIC               = ASE_API + "/jobs/%s/dastconfig/updatetraffic/%s";      //$NON-NLS-1$
+    String ASE_LOGIN_API                = ASE_API + "/keylogin/apikeylogin";                     //$NON-NLS-1$
+    String ASE_KEY_ID                   = "keyId";										         //$NON-NLS-1$
+    String ASE_KEY_SECRET               = "keySecret";                                           //$NON-NLS-1$
+    String ASE_NAME_ATTRIBUTE           = "name";                                                //$NON-NLS-1$
+    String ASE_ID_ATTRIBUTE             = "id";                                                  //$NON-NLS-1$
+    String ASE_CREATEJOB_TEMPLATE_ID    = ASE_API + "/jobs/%s/dastconfig/createjob";             //$NON-NLS-1$
+    String ASE_GET_JOB                  = ASE_API + "/jobs/%s";                                  //$NON-NLS-1$
+    String ASE_RUN_JOB_ACTION           = ASE_API +"/jobs/%s/actions";                           //$NON-NLS-1$
+    String ASE_REPORTPACK               = "/folderitems/%s/reportPack";                          //$NON-NLS-1$
+    String ASE_REPORTS                  = "/folderitems/%s/reports";                             //$NON-NLS-1$        
+	
 }
