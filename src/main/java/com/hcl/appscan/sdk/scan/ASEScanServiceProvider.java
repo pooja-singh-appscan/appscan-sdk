@@ -51,7 +51,7 @@ public class ASEScanServiceProvider implements IScanServiceProvider, Serializabl
 			    updatescantJob(getLoginAutoPasswordParams(params.get("password")),jobId);
 		    
 		    // Login Management - Recorded
-		    if(!params.get("trafficFile").isEmpty())
+		    if(!params.get("startingURL").isEmpty())
 			    updatetrafficJob(params,jobId,"login");
 		    
 		    // Explore Data
@@ -266,7 +266,7 @@ public class ASEScanServiceProvider implements IScanServiceProvider, Serializabl
 
     @Override
     public JSONObject getScanDetails(String jobId) throws IOException, JSONException {
-                if(loginExpired())
+        if(loginExpired())
 			return null;
 		String reportPackId=getReportPackId(jobId);
 		String request_url = m_authProvider.getServer() + String.format(ASE_REPORTS, reportPackId);
@@ -275,8 +275,7 @@ public class ASEScanServiceProvider implements IScanServiceProvider, Serializabl
 		HttpsClient client = new HttpsClient();
 		HttpResponse response = client.get(request_url, request_headers, null);
 		
-		if (response.getResponseCode() == HttpsURLConnection.HTTP_OK || response.getResponseCode() == HttpsURLConnection.HTTP_CREATED)
-			//return (JSONObject) response.getResponseBodyAsJSON();
+		if (response.getResponseCode() == HttpsURLConnection.HTTP_OK || response.getResponseCode() == HttpsURLConnection.HTTP_CREATED)			
                         return getResultJson(response);
 
 		if (response.getResponseCode() == HttpsURLConnection.HTTP_BAD_REQUEST)
@@ -302,7 +301,7 @@ public class ASEScanServiceProvider implements IScanServiceProvider, Serializabl
 
     private String getReportPackId(String jobId) {
         return String.valueOf(Integer.parseInt(jobId)+1);
-        // please uncomment the below code when you figure out how to parse the reponse.
+        // Uncomment the below code when you figure out how to parse the reponse.
         // currently the reponse is returned as array which makes no sense.
         /*IAuthenticationProvider authProvider = m_scanProvider.getAuthenticationProvider();
 		if(authProvider.isTokenExpired()) {
@@ -338,8 +337,7 @@ public class ASEScanServiceProvider implements IScanServiceProvider, Serializabl
     }
 
     private JSONObject getResultJson(HttpResponse response) {
-        JSONObject result;
-        
+        JSONObject result;        
         try {
             JSONObject object=(JSONObject) response.getResponseBodyAsJSON();
             JSONObject reportsObject=object.getJSONObject("reports");
@@ -388,6 +386,5 @@ public class ASEScanServiceProvider implements IScanServiceProvider, Serializabl
             Logger.getLogger(ASEScanServiceProvider.class.getName()).log(Level.SEVERE, null, ex);
         }
         return null;
-    }
-    
+    }    
 }

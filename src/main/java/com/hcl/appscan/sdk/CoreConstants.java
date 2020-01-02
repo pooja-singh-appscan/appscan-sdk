@@ -124,7 +124,7 @@ public interface CoreConstants {
     String ASE_CREATEJOB_TEMPLATE_ID    = ASE_API + "/jobs/%s/dastconfig/createjob";             //$NON-NLS-1$
     String ASE_GET_JOB                  = ASE_API + "/jobs/%s";                                  //$NON-NLS-1$
     String ASE_RUN_JOB_ACTION           = ASE_API +"/jobs/%s/actions";                           //$NON-NLS-1$
-    String ASE_REPORTPACK               = "/folderitems/%s/reportPack";                          //$NON-NLS-1$
-    String ASE_REPORTS                  = "/folderitems/%s/reports";                             //$NON-NLS-1$        
-    String ASE_GET_FOLDERITEMS          = "/api/folderitems/%s";              
+    String ASE_REPORTPACK               = ASE_API + "/folderitems/%s/reportPack";                //$NON-NLS-1$
+    String ASE_REPORTS                  = ASE_API + "/folderitems/%s/reports";                   //$NON-NLS-1$
+    String ASE_GET_FOLDERITEMS          = ASE_API + "/folderitems/%s";							 //$NON-NLS-1$          
 }
