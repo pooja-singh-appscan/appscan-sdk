@@ -116,6 +116,7 @@ public interface CoreConstants {
     String ASE_AGENT_SERVER             = ASE_API + "/agentServer";                              //$NON-NLS-1$
     String ASE_UPDSCANT                 = ASE_API + "/jobs/%s/dastconfig/updatescant";           //$NON-NLS-1$
     String ASE_UPDTRAFFIC               = ASE_API + "/jobs/%s/dastconfig/updatetraffic/%s";      //$NON-NLS-1$
+    String ASE_UPDTAGENT     			= ASE_API + "/jobs/%s/designateAgentServer/%s";			 //$NON-NLS-1$
     String ASE_LOGIN_API                = ASE_API + "/keylogin/apikeylogin";                     //$NON-NLS-1$
     String ASE_KEY_ID                   = "keyId";										         //$NON-NLS-1$
     String ASE_KEY_SECRET               = "keySecret";                                           //$NON-NLS-1$

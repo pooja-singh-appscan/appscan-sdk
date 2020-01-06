@@ -36,16 +36,22 @@ public class ASEScanServiceProvider implements IScanServiceProvider, Serializabl
 
     @Override
     public String createAndExecuteScan(String type, Map<String, String> params) {
-        String jobId=createJob(params);
         
+    	String jobId=createJob(params);
+    	
     	if (jobId!=null) {
     		
-    		// Starting URL
-		    if(!params.get("startingURL").isEmpty())
+            // Starting URL
+		    if(!params.get("startingURL").isEmpty()) {
 			    updatescantJob(getStartingUrlParams(params.get("startingURL")),jobId);
+		    }
+		    
+		    if(!params.get("agentServer").isEmpty()) {
+		    	updateAgentServer(params, jobId);
+		    }
 		    
 		    // Login Management - Automatic
-		    if(!params.get("startingURL").isEmpty())
+		   /*if(!params.get("startingURL").isEmpty())
 			    updatescantJob(getLoginAutoUserNameParams(params.get("username")),jobId);
 		    if(!params.get("startingURL").isEmpty())
 			    updatescantJob(getLoginAutoPasswordParams(params.get("password")),jobId);
@@ -55,8 +61,8 @@ public class ASEScanServiceProvider implements IScanServiceProvider, Serializabl
 			    updatetrafficJob(params,jobId,"login");
 		    
 		    // Explore Data
-		    if(!params.get("startingURL").isEmpty())
-			    updatetrafficJob(params,jobId,"add");
+		    if(!params.get("exploreData").isEmpty())
+			    updatetrafficJob(params,jobId,"add");*/
     	}
         if (jobId!=null && runScanJob(jobId)){
             return jobId;
@@ -104,20 +110,20 @@ public class ASEScanServiceProvider implements IScanServiceProvider, Serializabl
 		return null;
     }
     
-    private Map<String,String> getcreateJobParams(Map<String,String> properties){
+    private Map<String,String> getcreateJobParams(Map<String,String> properties) {
         Map<String,String> apiParams= new HashMap<>();
         apiParams.put("testPolicyId", properties.get("testPolicyId"));
-        apiParams.put("folderId",properties.get("folderId"));
-        apiParams.put("applicationId",properties.get("applicationId"));
+        apiParams.put("folderId",properties.get("folder"));
+        apiParams.put("applicationId",properties.get("application"));
         apiParams.put("name", properties.get("ScanName"));
         apiParams.put("templateId", properties.get("templateId"));
         return apiParams;
     }
     
-    private String updatescantJob(Map<String, String> params, String jobId){
+    private String updatescantJob(Map<String, String> params, String jobId) {
     	
         if(loginExpired())
-    		return null;    	 		
+    		return null;
     	
     	String request_url = m_authProvider.getServer() + String.format(ASE_UPDSCANT, jobId);
     	Map<String, String> request_headers = m_authProvider.getAuthorizationHeader(true);
@@ -129,7 +135,7 @@ public class ASEScanServiceProvider implements IScanServiceProvider, Serializabl
     		
 		try {
 			HttpResponse response = client.postForm(request_url, request_headers, params);
-			int status = response.getResponseCode();					
+			int status = response.getResponseCode();
 			if (status != HttpsURLConnection.HTTP_CREATED) {				
 				// In the event update fails, stop the job
             }
@@ -139,7 +145,7 @@ public class ASEScanServiceProvider implements IScanServiceProvider, Serializabl
 		return null;
     }
     
-    private String updatetrafficJob(Map<String, String> params, String jobId, String action){
+    private String updatetrafficJob(Map<String, String> params, String jobId, String action) {
 		
     	if(loginExpired())
 			return null;
@@ -154,17 +160,41 @@ public class ASEScanServiceProvider implements IScanServiceProvider, Serializabl
 
 		try {
 			HttpResponse response = client.postForm(request_url, request_headers, params);
-			int status = response.getResponseCode();			
-			if (status != HttpsURLConnection.HTTP_CREATED) {				
+			int status = response.getResponseCode();
+			if (status != HttpsURLConnection.HTTP_OK) {				
 				// In the event update fails, stop the job
-            }		
+            }
 		} catch(IOException e) {
 			m_progress.setStatus(new Message(Message.ERROR, Messages.getMessage(ERROR_UPDATE_JOB, e.getLocalizedMessage())));
 		}
 		return null;
 	}
     
-	private Map<String,String> getStartingUrlParams(String startingURL){
+    private String updateAgentServer (Map<String, String> params, String jobId ) {
+    	if(loginExpired())
+			return null;
+
+		String request_url = m_authProvider.getServer() + String.format(ASE_UPDTAGENT, jobId, params.get("agentServer"));
+		Map<String, String> request_headers = m_authProvider.getAuthorizationHeader(true);
+		request_headers.put(CONTENT_TYPE, "application/json; utf-8"); //$NON-NLS-1$
+		request_headers.put(CHARSET, UTF8);
+		request_headers.put("Accept", "application/json"); //$NON-NLS-1$ //$NON-NLS-2$
+
+		HttpsClient client = new HttpsClient();		
+		 
+		try {
+			HttpResponse response = client.postForm(request_url, request_headers, params);
+			int status = response.getResponseCode();
+			if (status != HttpsURLConnection.HTTP_OK) {				
+				// In the event update fails, stop the job
+            }
+		} catch(IOException e) {
+			m_progress.setStatus(new Message(Message.ERROR, Messages.getMessage(ERROR_UPDATE_JOB, e.getLocalizedMessage())));
+		}
+		return null;
+    }
+    
+	private Map<String,String> getStartingUrlParams(String startingURL) {
 		Map<String,String> apiParams= new HashMap<>();
 		apiParams.put("scantNodeXpath", "StartingUrl");
 		apiParams.put("scantNodeNewValue", startingURL);
@@ -173,7 +203,7 @@ public class ASEScanServiceProvider implements IScanServiceProvider, Serializabl
 		return apiParams;
 	}
 	
-	private Map<String,String> getLoginAutoUserNameParams(String loginUsername){
+	private Map<String,String> getLoginAutoUserNameParams(String loginUsername) {
 		Map<String,String> apiParams= new HashMap<>();
 		apiParams.put("scantNodeXpath", "LoginUsername");
 		apiParams.put("scantNodeNewValue",loginUsername);
@@ -182,14 +212,14 @@ public class ASEScanServiceProvider implements IScanServiceProvider, Serializabl
 		return apiParams;
 	}
     
-	private Map<String,String> getLoginAutoPasswordParams(String loginPassword){
+	private Map<String,String> getLoginAutoPasswordParams(String loginPassword) {
 		Map<String,String> apiParams= new HashMap<>();
 		apiParams.put("scantNodeXpath", "LoginPassword");
 		apiParams.put("scantNodeNewValue", loginPassword);
 		apiParams.put("encryptNodeValue", "true");
 		//apiParams.put("allowExploreDataUpdate", "0");
 		return apiParams;
-        }
+    }
     
     private boolean runScanJob(String jobId) {
       
@@ -199,7 +229,7 @@ public class ASEScanServiceProvider implements IScanServiceProvider, Serializabl
 		m_progress.setStatus(new Message(Message.INFO, Messages.getMessage(EXECUTING_JOB)));
 		
         String eTag = "";
-        eTag = getEtag(jobId);                
+        eTag = getEtag(jobId);
 		String request_url = m_authProvider.getServer() + String.format(ASE_RUN_JOB_ACTION, jobId);
 		Map<String, String> request_headers = m_authProvider.getAuthorizationHeader(true);
         request_headers.put(CONTENT_TYPE, "application/json; utf-8"); //$NON-NLS-1$
@@ -229,7 +259,7 @@ public class ASEScanServiceProvider implements IScanServiceProvider, Serializabl
     private String getEtag(String jobId) {
 
     	if(loginExpired())
-			return null;		
+			return null;
 		
 		String request_url = m_authProvider.getServer() + String.format(ASE_GET_JOB, jobId);
 		Map<String, String> request_headers = m_authProvider.getAuthorizationHeader(true);
@@ -337,7 +367,7 @@ public class ASEScanServiceProvider implements IScanServiceProvider, Serializabl
     }
 
     private JSONObject getResultJson(HttpResponse response) {
-        JSONObject result;        
+        JSONObject result;
         try {
             JSONObject object=(JSONObject) response.getResponseBodyAsJSON();
             JSONObject reportsObject=object.getJSONObject("reports");
@@ -345,18 +375,18 @@ public class ASEScanServiceProvider implements IScanServiceProvider, Serializabl
             outer:
             for (Object obj:reports.toArray()){
                 JSONObject reportObject=(JSONObject)obj;
-                if (reportObject.getString("name").equalsIgnoreCase("Security Issues")){
+                if (reportObject.getString("name").equalsIgnoreCase("Security Issues")) {
                     result= new JSONObject();
                     JSONObject issueCountsSeverity=reportObject.getJSONObject("issue-counts-severity");
                     JSONArray issueCount=issueCountsSeverity.getJSONArray("issue-count");
                     int totalCount=0;
                     int count;
                     inner:
-                    for (Object severity: issueCount.toArray()){
+                    for (Object severity: issueCount.toArray()) {
                         JSONObject severityCount=(JSONObject) severity;
                         JSONObject severityDetails=severityCount.getJSONObject("severity");
                         count=Integer.parseInt(severityCount.getString("count"));
-                        switch(severityDetails.getString("name")){
+                        switch(severityDetails.getString("name")) {
                             case "High":
                                 result.put("NHighIssues", count);
                                 totalCount=totalCount+count;
@@ -386,5 +416,5 @@ public class ASEScanServiceProvider implements IScanServiceProvider, Serializabl
             Logger.getLogger(ASEScanServiceProvider.class.getName()).log(Level.SEVERE, null, ex);
         }
         return null;
-    }    
+    }
 }
