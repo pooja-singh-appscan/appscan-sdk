@@ -50,19 +50,22 @@ public class ASEScanServiceProvider implements IScanServiceProvider, Serializabl
 		    	updateAgentServer(params, jobId);
 		    }
 		    
-		    // Login Management - Automatic
-		   /*if(!params.get("startingURL").isEmpty())
-			    updatescantJob(getLoginAutoUserNameParams(params.get("username")),jobId);
-		    if(!params.get("startingURL").isEmpty())
-			    updatescantJob(getLoginAutoPasswordParams(params.get("password")),jobId);
-		    
-		    // Login Management - Recorded
-		    if(!params.get("startingURL").isEmpty())
-			    updatetrafficJob(params,jobId,"login");
-		    
+		    // Login Management
+		    if (!params.get("loginType").isEmpty()) {
+		    	String loginType = params.get("loginType");
+		    	updatescantJob(getLoginMethodParams(loginType),jobId);
+		    	if (loginType.equals("Automatic")) {
+		    		 updatescantJob(getLoginAutoUserNameParams(params.get("userName")),jobId);
+		    		 updatescantJob(getLoginAutoPasswordParams(params.get("password")),jobId);
+		    		
+		    	} else if (loginType.equals("Recorded")) {
+		    		 updatetrafficJob(params,jobId,"login");
+		    	}
+		    }
+		   
 		    // Explore Data
 		    if(!params.get("exploreData").isEmpty())
-			    updatetrafficJob(params,jobId,"add");*/
+			    updatetrafficJob(params,jobId,"add");
     	}
         if (jobId!=null && runScanJob(jobId)){
             return jobId;
@@ -198,6 +201,15 @@ public class ASEScanServiceProvider implements IScanServiceProvider, Serializabl
 		Map<String,String> apiParams= new HashMap<>();
 		apiParams.put("scantNodeXpath", "StartingUrl");
 		apiParams.put("scantNodeNewValue", startingURL);
+		//apiParams.put("encryptNodeValue", "false");
+		//apiParams.put("allowExploreDataUpdate", "0");
+		return apiParams;
+	}
+	
+	private Map<String, String> getLoginMethodParams (String loginType) {
+		Map<String,String> apiParams= new HashMap<>();
+		apiParams.put("scantNodeXpath", "LoginMethod");
+		apiParams.put("scantNodeNewValue",loginType);
 		//apiParams.put("encryptNodeValue", "false");
 		//apiParams.put("allowExploreDataUpdate", "0");
 		return apiParams;
