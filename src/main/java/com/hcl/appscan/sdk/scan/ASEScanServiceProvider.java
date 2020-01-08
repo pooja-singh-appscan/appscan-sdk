@@ -9,6 +9,7 @@ import com.hcl.appscan.sdk.CoreConstants;
 import com.hcl.appscan.sdk.Messages;
 import com.hcl.appscan.sdk.auth.IASEAuthenticationProvider;
 import com.hcl.appscan.sdk.auth.IAuthenticationProvider;
+import com.hcl.appscan.sdk.http.HttpPart;
 import com.hcl.appscan.sdk.http.HttpResponse;
 import com.hcl.appscan.sdk.http.HttpsClient;
 import com.hcl.appscan.sdk.logging.IProgress;
@@ -16,7 +17,9 @@ import com.hcl.appscan.sdk.logging.Message;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -25,7 +28,7 @@ import org.apache.wink.json4j.JSONArray;
 import org.apache.wink.json4j.JSONException;
 import org.apache.wink.json4j.JSONObject;
 
-public class ASEScanServiceProvider implements IScanServiceProvider, Serializable, CoreConstants{
+public class ASEScanServiceProvider implements IScanServiceProvider, Serializable, CoreConstants {
 	private IProgress m_progress;
 	private IASEAuthenticationProvider m_authProvider;
 	
@@ -46,6 +49,7 @@ public class ASEScanServiceProvider implements IScanServiceProvider, Serializabl
 			    updatescantJob(getStartingUrlParams(params.get("startingURL")),jobId);
 		    }
 		    
+		    // Agent Server
 		    if(!params.get("agentServer").isEmpty()) {
 		    	updateAgentServer(params, jobId);
 		    }
@@ -53,19 +57,23 @@ public class ASEScanServiceProvider implements IScanServiceProvider, Serializabl
 		    // Login Management
 		    if (!params.get("loginType").isEmpty()) {
 		    	String loginType = params.get("loginType");
-		    	updatescantJob(getLoginMethodParams(loginType),jobId);
-		    	if (loginType.equals("Automatic")) {
-		    		 updatescantJob(getLoginAutoUserNameParams(params.get("userName")),jobId);
-		    		 updatescantJob(getLoginAutoPasswordParams(params.get("password")),jobId);
-		    		
-		    	} else if (loginType.equals("Recorded")) {
-		    		 updatetrafficJob(params,jobId,"login");
+		    	if(!loginType.equals("Recorded")) {
+		    		updatescantJob(getLoginMethodParams(loginType),jobId);
+		    		if (loginType.equals("Automatic")) {
+			    		 updatescantJob(getLoginAutoUserNameParams(params.get("userName")),jobId);
+			    		 updatescantJob(getLoginAutoPasswordParams(params.get("password")),jobId);    		
+			    	}
+		    	}
+		    	else {
+		    		updatescantJob(getLoginMethodParams("Manual"),jobId);
+		    		updateTrafficJob(getLoginRectrafficParams(params.get("trafficFile")),jobId,"login");
 		    	}
 		    }
 		   
 		    // Explore Data
 		    if(!params.get("exploreData").isEmpty())
-			    updatetrafficJob(params,jobId,"add");
+			    updateTrafficJob(getExploreDataParams(params.get("exploreData")),jobId,"add");
+		    
     	}
         if (jobId!=null && runScanJob(jobId)){
             return jobId;
@@ -78,7 +86,7 @@ public class ASEScanServiceProvider implements IScanServiceProvider, Serializabl
         if(loginExpired())
            return null;
         
-        Map<String, String> createJobParams = getcreateJobParams(params);        
+        Map<String, String> createJobParams = getcreateJobParams(params);
         m_progress.setStatus(new Message(Message.INFO, Messages.getMessage(CREATING_JOB)));
         
         // TODO : correct it .
@@ -139,7 +147,7 @@ public class ASEScanServiceProvider implements IScanServiceProvider, Serializabl
 		try {
 			HttpResponse response = client.postForm(request_url, request_headers, params);
 			int status = response.getResponseCode();
-			if (status != HttpsURLConnection.HTTP_CREATED) {				
+			if (status != HttpsURLConnection.HTTP_CREATED) {
 				// In the event update fails, stop the job
             }
         } catch(IOException e) {
@@ -148,7 +156,7 @@ public class ASEScanServiceProvider implements IScanServiceProvider, Serializabl
 		return null;
     }
     
-    private String updatetrafficJob(Map<String, String> params, String jobId, String action) {
+    private String updateTrafficJob(File file, String jobId, String action) {
 		
     	if(loginExpired())
 			return null;
@@ -158,13 +166,21 @@ public class ASEScanServiceProvider implements IScanServiceProvider, Serializabl
 		request_headers.put(CONTENT_TYPE, "application/json; utf-8"); //$NON-NLS-1$
 		request_headers.put(CHARSET, UTF8);
 		request_headers.put("Accept", "application/json"); //$NON-NLS-1$ //$NON-NLS-2$
-
-		 HttpsClient client = new HttpsClient();
+		
+		List<HttpPart> parts = new ArrayList<HttpPart>();
+		
+		try {
+		    parts.add(new HttpPart(FILE_TO_UPLOAD, file, "multipart/form-data")); //$NON-NLS-1$
+		} catch (IOException e) {
+		    m_progress.setStatus(new Message(Message.ERROR, Messages.getMessage(ERROR_UPDATE_JOB, e.getLocalizedMessage())));
+		}
+		
+		HttpsClient client = new HttpsClient();
 
 		try {
-			HttpResponse response = client.postForm(request_url, request_headers, params);
+			HttpResponse response = client.postMultipart(request_url, request_headers, parts);
 			int status = response.getResponseCode();
-			if (status != HttpsURLConnection.HTTP_OK) {				
+			if (status != HttpsURLConnection.HTTP_OK) {
 				// In the event update fails, stop the job
             }
 		} catch(IOException e) {
@@ -183,12 +199,12 @@ public class ASEScanServiceProvider implements IScanServiceProvider, Serializabl
 		request_headers.put(CHARSET, UTF8);
 		request_headers.put("Accept", "application/json"); //$NON-NLS-1$ //$NON-NLS-2$
 
-		HttpsClient client = new HttpsClient();		
+		HttpsClient client = new HttpsClient();
 		 
 		try {
 			HttpResponse response = client.postForm(request_url, request_headers, params);
 			int status = response.getResponseCode();
-			if (status != HttpsURLConnection.HTTP_OK) {				
+			if (status != HttpsURLConnection.HTTP_OK) {
 				// In the event update fails, stop the job
             }
 		} catch(IOException e) {
@@ -196,7 +212,7 @@ public class ASEScanServiceProvider implements IScanServiceProvider, Serializabl
 		}
 		return null;
     }
-    
+   
 	private Map<String,String> getStartingUrlParams(String startingURL) {
 		Map<String,String> apiParams= new HashMap<>();
 		apiParams.put("scantNodeXpath", "StartingUrl");
@@ -231,8 +247,24 @@ public class ASEScanServiceProvider implements IScanServiceProvider, Serializabl
 		apiParams.put("encryptNodeValue", "true");
 		//apiParams.put("allowExploreDataUpdate", "0");
 		return apiParams;
-    }
-    
+	}
+	
+	private File getLoginRectrafficParams(String trafficFile) {
+		if(trafficFile != null && new File(trafficFile).isFile()) {
+			File file = new File(trafficFile);
+			return file;
+		}
+		return null;
+	}
+	
+	private File getExploreDataParams(String exploreData) {
+		if(exploreData != null && new File(exploreData).isFile()) {
+			File file = new File(exploreData);
+			return file;
+		}
+		return null;
+	}
+	
     private boolean runScanJob(String jobId) {
       
        if(loginExpired())

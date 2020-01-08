@@ -69,9 +69,9 @@ public interface CoreConstants {
 	String SACLIENT_INSTALL_DIR			= "SAClientInstall";									//$NON-NLS-1$
 
 	String RUNNING						= "Running";											//$NON-NLS-1$
-	String WAITING_TO_RUN						= "Waiting to Run";											//$NON-NLS-1$
-        String STARTING						= "Starting";											//$NON-NLS-1$
-        String INQUEUE 						= "InQueue"; 											//$NON-NLS-1$
+	String WAITING_TO_RUN				= "Waiting to Run";										//$NON-NLS-1$
+	String STARTING					    = "Starting";											//$NON-NLS-1$
+	String INQUEUE 					    = "InQueue"; 											//$NON-NLS-1$
 	String READY						= "Ready";												//$NON-NLS-1$
 	String FAILED						= "Failed";												//$NON-NLS-1$
 
@@ -127,5 +127,5 @@ public interface CoreConstants {
     String ASE_RUN_JOB_ACTION           = ASE_API +"/jobs/%s/actions";                           //$NON-NLS-1$
     String ASE_REPORTPACK               = ASE_API + "/folderitems/%s/reportPack";                //$NON-NLS-1$
     String ASE_REPORTS                  = ASE_API + "/folderitems/%s/reports";                   //$NON-NLS-1$
-    String ASE_GET_FOLDERITEMS          = ASE_API + "/folderitems/%s";							 //$NON-NLS-1$          
+    String ASE_GET_FOLDERITEMS          = ASE_API + "/folderitems/%s";							 //$NON-NLS-1$    
 }
