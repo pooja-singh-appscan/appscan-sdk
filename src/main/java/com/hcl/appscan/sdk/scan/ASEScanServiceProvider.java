@@ -158,10 +158,10 @@ public class ASEScanServiceProvider implements IScanServiceProvider, Serializabl
     
     private String updateTrafficJob(File file, String jobId, String action) {
 		
-    	if(loginExpired())
+    	if(loginExpired() || file == null)
 			return null;
-
-		String request_url = m_authProvider.getServer() + String.format(ASE_UPDTRAFFIC, jobId, action);
+    	
+    	String request_url = m_authProvider.getServer() + String.format(ASE_UPDTRAFFIC, jobId, action);
 		Map<String, String> request_headers = m_authProvider.getAuthorizationHeader(true);
 		request_headers.put(CONTENT_TYPE, "application/json; utf-8"); //$NON-NLS-1$
 		request_headers.put(CHARSET, UTF8);
