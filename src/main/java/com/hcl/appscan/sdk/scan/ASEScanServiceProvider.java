@@ -74,6 +74,10 @@ public class ASEScanServiceProvider implements IScanServiceProvider, Serializabl
 		    if(!params.get("exploreData").isEmpty())
 			    updateTrafficJob(getExploreDataParams(params.get("exploreData")),jobId,"add");
 		    
+		    // Scan Type
+		    if(!params.get("scanType").isEmpty()) {
+		    	scanTypeJob(params, jobId);
+		    }
     	}
         if (jobId!=null && runScanJob(jobId)){
             return jobId;
@@ -155,6 +159,31 @@ public class ASEScanServiceProvider implements IScanServiceProvider, Serializabl
 		}
 		return null;
     }
+    
+    private String scanTypeJob (Map<String, String> params, String jobId) {
+		
+    	if(loginExpired())
+			return null;
+	
+		String request_url = m_authProvider.getServer() + String.format(ASE_SCAN_TYPE) + "?scanTypeId=" + params.get("scanType") + "&jobId="+ jobId;
+		Map<String, String> request_headers = m_authProvider.getAuthorizationHeader(true);
+		request_headers.put(CONTENT_TYPE, "application/json; utf-8"); //$NON-NLS-1$
+		request_headers.put(CHARSET, UTF8);
+		request_headers.put("Accept", "application/json"); //$NON-NLS-1$ //$NON-NLS-2$
+		
+		HttpsClient client = new HttpsClient();
+
+		try {
+			HttpResponse response = client.put(request_url, request_headers, null);
+			int status = response.getResponseCode();
+			if (status != HttpsURLConnection.HTTP_OK) {
+				// In the event update fails, stop the job
+            }
+		} catch(IOException e) {
+			m_progress.setStatus(new Message(Message.ERROR, Messages.getMessage(ERROR_UPDATE_JOB, e.getLocalizedMessage())));
+		}
+		return null;
+	}
     
     private String updateTrafficJob(File file, String jobId, String action) {
 		

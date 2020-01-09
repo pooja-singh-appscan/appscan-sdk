@@ -40,11 +40,9 @@ public class ASEAgentServerProvider implements IComponent{
         if(m_authProvider.isTokenExpired())
 			return;
 		
-        m_agentServers = new HashMap<String, String>();
-        //String url =  m_authProvider.getServer() + ASE_APPS + "columns=name&sortBy=%2Bname"; //$NON-NLS-1$
+        m_agentServers = new HashMap<String, String>();        
         String url =  m_authProvider.getServer() + CoreConstants.ASE_AGENT_SERVER;
-        Map<String, String> headers = m_authProvider.getAuthorizationHeader(true);
-        //headers.putAll(Collections.singletonMap("Range", "items=0-999999")); //$NON-NLS-1$ //$NON-NLS-2$		
+        Map<String, String> headers = m_authProvider.getAuthorizationHeader(true);        		
         HttpsClient client = new HttpsClient();
 		
 		try {
@@ -67,5 +65,5 @@ public class ASEAgentServerProvider implements IComponent{
 		catch(IOException | JSONException e) {
 			m_agentServers = null;
 		}
-    }    
+    }
 }

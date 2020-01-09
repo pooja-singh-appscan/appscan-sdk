@@ -40,11 +40,9 @@ public class ASETestPoliciesProvider implements IComponent{
 			return;
 		
         m_policies = new HashMap<String, String>();
-        //String url =  m_authProvider.getServer() + ASE_APPS + "columns=name&sortBy=%2Bname"; //$NON-NLS-1$
         String url =  m_authProvider.getServer() + "/api/testpolicies";
         Map<String, String> headers = m_authProvider.getAuthorizationHeader(true);
-        //headers.putAll(Collections.singletonMap("Range", "items=0-999999")); //$NON-NLS-1$ //$NON-NLS-2$
-		
+        
 		HttpsClient client = new HttpsClient();
 		
 		try {

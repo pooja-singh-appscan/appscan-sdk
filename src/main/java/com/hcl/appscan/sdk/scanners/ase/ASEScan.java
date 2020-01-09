@@ -17,7 +17,7 @@ import com.hcl.appscan.sdk.scanners.ASoCScan;
 import com.hcl.appscan.sdk.scanners.ScanConstants;
 import java.util.Map;
 
-public class ASEScan extends ASoCScan implements ScanConstants{
+public class ASEScan extends ASoCScan implements ScanConstants {
     
     private static final long serialVersionUID = 1L;
     
@@ -31,12 +31,11 @@ public class ASEScan extends ASoCScan implements ScanConstants{
 	
 	public ASEScan(Map<String, String> properties, IProgress progress, IScanServiceProvider provider) {
 		super(properties, progress, provider);
-	}        
+	}
         
     @Override
-    public void run() throws ScannerException, InvalidTargetException {
-        
-        //Map<String, String> params = getParams(getProperties());
+    public void run() throws ScannerException, InvalidTargetException {       
+ 
         String id=getServiceProvider().createAndExecuteScan(null, getProperties());        
         setScanId(id);
         if(getScanId() == null)

@@ -13,7 +13,7 @@ import com.hcl.appscan.sdk.scan.IScanFactory;
 import com.hcl.appscan.sdk.scan.IScanServiceProvider;
 import java.util.Map;
 
-public class ASEScanFactory implements IScanFactory{
+public class ASEScanFactory implements IScanFactory {
 
     @Override
     public IScan create(Map<String, String> properties, IProgress progress, IAuthenticationProvider authProvider) {

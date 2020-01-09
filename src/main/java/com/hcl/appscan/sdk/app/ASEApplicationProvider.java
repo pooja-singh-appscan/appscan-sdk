@@ -42,8 +42,7 @@ public class ASEApplicationProvider implements IApplicationProvider, CoreConstan
         if(m_authProvider.isTokenExpired())
 			return;
 		
-        m_applications = new HashMap<String, String>();
-        //String url =  m_authProvider.getServer() + ASE_APPS + "columns=name&sortBy=%2Bname"; //$NON-NLS-1$
+        m_applications = new HashMap<String, String>();        
         String url =  m_authProvider.getServer() + ASE_APPS+"?columns=name";
         Map<String, String> headers = m_authProvider.getAuthorizationHeader(true);
         headers.putAll(Collections.singletonMap("Range", "items=0-999999")); //$NON-NLS-1$ //$NON-NLS-2$
