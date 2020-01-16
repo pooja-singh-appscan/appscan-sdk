@@ -43,41 +43,7 @@ public class ASEScanServiceProvider implements IScanServiceProvider, Serializabl
     	String jobId=createJob(params);
     	
     	if (jobId!=null) {
-    		
-            // Starting URL
-		    if(!params.get("startingURL").isEmpty()) {
-			    updatescantJob(getStartingUrlParams(params.get("startingURL")),jobId);
-		    }
-		    
-		    // Agent Server
-		    if(!params.get("agentServer").isEmpty()) {
-		    	updateAgentServer(params, jobId);
-		    }
-		    
-		    // Login Management
-		    if (!params.get("loginType").isEmpty()) {
-		    	String loginType = params.get("loginType");
-		    	if(!loginType.equals("Recorded")) {
-		    		updatescantJob(getLoginMethodParams(loginType),jobId);
-		    		if (loginType.equals("Automatic")) {
-			    		 updatescantJob(getLoginAutoUserNameParams(params.get("userName")),jobId);
-			    		 updatescantJob(getLoginAutoPasswordParams(params.get("password")),jobId);    		
-			    	}
-		    	}
-		    	else {
-		    		updatescantJob(getLoginMethodParams("Manual"),jobId);
-		    		updateTrafficJob(getLoginRectrafficParams(params.get("trafficFile")),jobId,"login");
-		    	}
-		    }
-		   
-		    // Explore Data
-		    if(!params.get("exploreData").isEmpty())
-			    updateTrafficJob(getExploreDataParams(params.get("exploreData")),jobId,"add");
-		    
-		    // Scan Type
-		    if(!params.get("scanType").isEmpty()) {
-		    	scanTypeJob(params, jobId);
-		    }
+		jobId = updateJob(params, jobId);
     	}
         if (jobId!=null && runScanJob(jobId)){
             return jobId;
@@ -135,36 +101,80 @@ public class ASEScanServiceProvider implements IScanServiceProvider, Serializabl
         return apiParams;
     }
     
-    private String updatescantJob(Map<String, String> params, String jobId) {
-    	
-        if(loginExpired())
-    		return null;
-    	
-    	String request_url = m_authProvider.getServer() + String.format(ASE_UPDSCANT, jobId);
-    	Map<String, String> request_headers = m_authProvider.getAuthorizationHeader(true);
-    	request_headers.put(CONTENT_TYPE, "application/json; utf-8"); //$NON-NLS-1$
-    	request_headers.put(CHARSET, UTF8);
-    	request_headers.put("Accept", "application/json"); //$NON-NLS-1$ //$NON-NLS-2$
-    	
-        HttpsClient client = new HttpsClient();
-    		
+	private String updateJob(Map<String, String> params, String jobId) {
+
+		// Starting URL
+		if(!params.get("startingURL").isEmpty() && !updatescantJob(getUpdatescantJobParams("StartingUrl", params.get("startingURL"), "false"),jobId)) {
+			return null;
+		}
+
+		// Agent Server
+		if(!params.get("agentServer").isEmpty() && !updateAgentServer(params, jobId)) {
+			return null;
+		}
+
+		// Login Management
+		if (!params.get("loginType").isEmpty()) {
+		    
+		    String loginType = params.get("loginType");
+		    if(!updatescantJob(getUpdatescantJobParams("LoginMethod", loginType, "false"),jobId)) {
+			    return null;
+		    }
+		    
+		    if (loginType.equals("Automatic") && !updatescantJob(getUpdatescantJobParams("LoginUsername", params.get("userName"), "false"),jobId) && 
+				!updatescantJob(getUpdatescantJobParams("LoginPassword", params.get("password"), "true"),jobId)) {
+			    return null;
+		    }
+		    
+		    if (loginType.equals("Manual") && !updateTrafficJob(getFile(params.get("trafficFile")),jobId,"login")) {
+			    return null;
+		    }
+		}
+
+		// Explore Data
+		if(!params.get("exploreData").isEmpty() && !updateTrafficJob(getFile(params.get("exploreData")),jobId,"add")) {
+		    return null;
+		}
+
+		// Scan Type
+		if(!params.get("scanType").isEmpty() && !scanTypeJob(params, jobId)) {
+		    return null;
+		}
+		
+		return jobId;
+	}
+    
+	private Boolean updatescantJob(Map<String, String> params, String jobId) {
+
+		if(loginExpired())
+			return false;
+
+		String request_url = m_authProvider.getServer() + String.format(ASE_UPDSCANT, jobId);
+		Map<String, String> request_headers = m_authProvider.getAuthorizationHeader(true);
+		request_headers.put(CONTENT_TYPE, "application/json; utf-8"); //$NON-NLS-1$
+		request_headers.put(CHARSET, UTF8);
+		request_headers.put("Accept", "application/json"); //$NON-NLS-1$ //$NON-NLS-2$
+
+		HttpsClient client = new HttpsClient();
+
 		try {
 			HttpResponse response = client.postForm(request_url, request_headers, params);
 			int status = response.getResponseCode();
-			if (status != HttpsURLConnection.HTTP_CREATED) {
-				// In the event update fails, stop the job
-            }
-        } catch(IOException e) {
+			if (status != HttpsURLConnection.HTTP_OK) {
+				return false;
+			}
+		} catch(IOException e) {
 			m_progress.setStatus(new Message(Message.ERROR, Messages.getMessage(ERROR_UPDATE_JOB, e.getLocalizedMessage())));
+			return false;
 		}
-		return null;
-    }
+		return true;
+	}
     
-    private String scanTypeJob (Map<String, String> params, String jobId) {
-		
-    	if(loginExpired())
-			return null;
-	
+	private Boolean scanTypeJob (Map<String, String> params, String jobId) {
+
+		if(loginExpired())
+			return false;
+
 		String request_url = m_authProvider.getServer() + String.format(ASE_SCAN_TYPE) + "?scanTypeId=" + params.get("scanType") + "&jobId="+ jobId;
 		Map<String, String> request_headers = m_authProvider.getAuthorizationHeader(true);
 		request_headers.put(CONTENT_TYPE, "application/json; utf-8"); //$NON-NLS-1$
@@ -177,20 +187,21 @@ public class ASEScanServiceProvider implements IScanServiceProvider, Serializabl
 			HttpResponse response = client.put(request_url, request_headers, null);
 			int status = response.getResponseCode();
 			if (status != HttpsURLConnection.HTTP_OK) {
-				// In the event update fails, stop the job
-            }
+				return false;
+			}
 		} catch(IOException e) {
 			m_progress.setStatus(new Message(Message.ERROR, Messages.getMessage(ERROR_UPDATE_JOB, e.getLocalizedMessage())));
+			return false;
 		}
-		return null;
+		return true;
 	}
     
-    private String updateTrafficJob(File file, String jobId, String action) {
-		
-    	if(loginExpired() || file == null)
-			return null;
-    	
-    	String request_url = m_authProvider.getServer() + String.format(ASE_UPDTRAFFIC, jobId, action);
+	private Boolean updateTrafficJob(File file, String jobId, String action) {
+
+		if(loginExpired() || file == null)
+			return false;
+
+		String request_url = m_authProvider.getServer() + String.format(ASE_UPDTRAFFIC, jobId, action);
 		Map<String, String> request_headers = m_authProvider.getAuthorizationHeader(true);
 		request_headers.put(CONTENT_TYPE, "application/json; utf-8"); //$NON-NLS-1$
 		request_headers.put(CHARSET, UTF8);
@@ -201,7 +212,8 @@ public class ASEScanServiceProvider implements IScanServiceProvider, Serializabl
 		try {
 		    parts.add(new HttpPart(FILE_TO_UPLOAD, file, "multipart/form-data")); //$NON-NLS-1$
 		} catch (IOException e) {
-		    m_progress.setStatus(new Message(Message.ERROR, Messages.getMessage(ERROR_UPDATE_JOB, e.getLocalizedMessage())));
+			m_progress.setStatus(new Message(Message.ERROR, Messages.getMessage(ERROR_UPDATE_JOB, e.getLocalizedMessage())));
+			return false;
 		}
 		
 		HttpsClient client = new HttpsClient();
@@ -210,17 +222,18 @@ public class ASEScanServiceProvider implements IScanServiceProvider, Serializabl
 			HttpResponse response = client.postMultipart(request_url, request_headers, parts);
 			int status = response.getResponseCode();
 			if (status != HttpsURLConnection.HTTP_OK) {
-				// In the event update fails, stop the job
-            }
+				return false;
+			}
 		} catch(IOException e) {
 			m_progress.setStatus(new Message(Message.ERROR, Messages.getMessage(ERROR_UPDATE_JOB, e.getLocalizedMessage())));
+			return false;
 		}
-		return null;
+		return true;
 	}
     
-    private String updateAgentServer (Map<String, String> params, String jobId ) {
-    	if(loginExpired())
-			return null;
+	private boolean updateAgentServer (Map<String, String> params, String jobId ) {
+		if(loginExpired())
+			return false;
 
 		String request_url = m_authProvider.getServer() + String.format(ASE_UPDTAGENT, jobId, params.get("agentServer"));
 		Map<String, String> request_headers = m_authProvider.getAuthorizationHeader(true);
@@ -234,61 +247,27 @@ public class ASEScanServiceProvider implements IScanServiceProvider, Serializabl
 			HttpResponse response = client.postForm(request_url, request_headers, params);
 			int status = response.getResponseCode();
 			if (status != HttpsURLConnection.HTTP_OK) {
-				// In the event update fails, stop the job
-            }
+				return false;
+			}
 		} catch(IOException e) {
 			m_progress.setStatus(new Message(Message.ERROR, Messages.getMessage(ERROR_UPDATE_JOB, e.getLocalizedMessage())));
+			return false;
 		}
-		return null;
-    }
+		return true;
+	}
+	
+	private Map<String,String> getUpdatescantJobParams(String scantNodeXpath, String scantNodeNewValue, String encryptNodeValue) {
+		Map<String,String> apiParams= new HashMap<>();
+		apiParams.put("scantNodeXpath", scantNodeXpath);
+		apiParams.put("scantNodeNewValue", scantNodeNewValue);
+		apiParams.put("encryptNodeValue", encryptNodeValue);
+		//apiParams.put("allowExploreDataUpdate", "0");
+		return apiParams;
+	}
    
-	private Map<String,String> getStartingUrlParams(String startingURL) {
-		Map<String,String> apiParams= new HashMap<>();
-		apiParams.put("scantNodeXpath", "StartingUrl");
-		apiParams.put("scantNodeNewValue", startingURL);
-		//apiParams.put("encryptNodeValue", "false");
-		//apiParams.put("allowExploreDataUpdate", "0");
-		return apiParams;
-	}
-	
-	private Map<String, String> getLoginMethodParams (String loginType) {
-		Map<String,String> apiParams= new HashMap<>();
-		apiParams.put("scantNodeXpath", "LoginMethod");
-		apiParams.put("scantNodeNewValue",loginType);
-		//apiParams.put("encryptNodeValue", "false");
-		//apiParams.put("allowExploreDataUpdate", "0");
-		return apiParams;
-	}
-	
-	private Map<String,String> getLoginAutoUserNameParams(String loginUsername) {
-		Map<String,String> apiParams= new HashMap<>();
-		apiParams.put("scantNodeXpath", "LoginUsername");
-		apiParams.put("scantNodeNewValue",loginUsername);
-		//apiParams.put("encryptNodeValue", "false");
-		//apiParams.put("allowExploreDataUpdate", "0");
-		return apiParams;
-	}
-    
-	private Map<String,String> getLoginAutoPasswordParams(String loginPassword) {
-		Map<String,String> apiParams= new HashMap<>();
-		apiParams.put("scantNodeXpath", "LoginPassword");
-		apiParams.put("scantNodeNewValue", loginPassword);
-		apiParams.put("encryptNodeValue", "true");
-		//apiParams.put("allowExploreDataUpdate", "0");
-		return apiParams;
-	}
-	
-	private File getLoginRectrafficParams(String trafficFile) {
-		if(trafficFile != null && new File(trafficFile).isFile()) {
-			File file = new File(trafficFile);
-			return file;
-		}
-		return null;
-	}
-	
-	private File getExploreDataParams(String exploreData) {
-		if(exploreData != null && new File(exploreData).isFile()) {
-			File file = new File(exploreData);
+	private File getFile(String fileLocation) {
+		if(fileLocation != null && new File(fileLocation).isFile()) {
+			File file = new File(fileLocation);
 			return file;
 		}
 		return null;
