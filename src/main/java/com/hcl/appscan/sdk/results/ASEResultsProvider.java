@@ -144,10 +144,10 @@ public class ASEResultsProvider implements IResultsProvider, Serializable, CoreC
     private void loadResults() {
 		try {
 			m_status = getScanStatus(m_scanId);
-            if (m_status.equalsIgnoreCase("Ready")) {
+            if (m_status != null && m_status.equalsIgnoreCase("Ready")) {
                 m_status=getReportPackStatus(m_scanId);
             }
-			if(m_status.equalsIgnoreCase("Ready")) {
+			if(m_status != null && m_status.equalsIgnoreCase("Ready")) {
                 JSONObject obj = m_scanProvider.getScanDetails(m_scanId);
 				m_totalFindings = obj.getInt(TOTAL_ISSUES);
 				m_highFindings = obj.getInt(HIGH_ISSUES);

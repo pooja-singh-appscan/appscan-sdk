@@ -15,9 +15,11 @@ import com.hcl.appscan.sdk.results.IResultsProvider;
 import com.hcl.appscan.sdk.scan.IScanServiceProvider;
 import com.hcl.appscan.sdk.scanners.ASoCScan;
 import com.hcl.appscan.sdk.scanners.ScanConstants;
+
+import java.io.Serializable;
 import java.util.Map;
 
-public class ASEScan extends ASoCScan implements ScanConstants {
+public class ASEScan extends ASoCScan implements ScanConstants, Serializable {
     
     private static final long serialVersionUID = 1L;
     
