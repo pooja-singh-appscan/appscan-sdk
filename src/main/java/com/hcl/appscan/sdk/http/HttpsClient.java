@@ -309,38 +309,12 @@ public class HttpsClient {
 		int progress = (int) ((float)m_uploadedMultipartLength/m_totalMultipartLength*100);
 		m_progressAdapter.setProgress(progress);
 	}
-	
-	/*private String buildQueryString(Map<String, String> params) throws UnsupportedEncodingException {
-	    StringBuilder result = new StringBuilder();
-	    boolean first = true;
 
-	    if (params == null)
-	    	return ""; //$NON-NLS-1$
-	    
-	    Iterator<String> iter = params.keySet().iterator();
-            result.append("{");
-	    while (iter.hasNext()) {
-	    	String key = iter.next();
-                
-	    	String value = params.get(key);
-	        if (first)
-	            first = false;
-	        else
-	            result.append("&"); //$NON-NLS-1$
-
-	        result.append(URLEncoder.encode(key, "UTF-8")); //$NON-NLS-1$
-	        result.append("="); //$NON-NLS-1$
-	        result.append(URLEncoder.encode(value, "UTF-8")); //$NON-NLS-1$
-	    }
-
-	    //return result.toString();
-            return "{\"keyId\": \"N0AEXAKN24QZR9UPRWRYDFEW5JG4S4W0\",\"keySecret\": \"1BC52DNY8X4X9EF5T4FWO65V6TRVJQYF\"}";
-	}*/
         
-        private String buildQueryString(Map<String , String > params){
-            JSONObject obj= new JSONObject(params);
-            return obj.toString();
-        }
+    private String buildQueryString(Map<String , String > params){
+        JSONObject obj= new JSONObject(params);
+        return obj.toString();
+    }
 }
 
 	class TrustAllX509TrustManager implements X509TrustManager {

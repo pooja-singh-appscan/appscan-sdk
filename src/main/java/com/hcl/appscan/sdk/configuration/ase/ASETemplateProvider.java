@@ -3,9 +3,8 @@
  * LICENSE: Apache License, Version 2.0 https://www.apache.org/licenses/LICENSE-2.0
  */
 
-package com.hcl.appscan.sdk.configuration;
+package com.hcl.appscan.sdk.configuration.ase;
 
-import com.hcl.appscan.sdk.CoreConstants;
 import com.hcl.appscan.sdk.auth.IASEAuthenticationProvider;
 import com.hcl.appscan.sdk.http.HttpResponse;
 import com.hcl.appscan.sdk.http.HttpsClient;
@@ -16,37 +15,39 @@ import org.apache.wink.json4j.JSONArray;
 import org.apache.wink.json4j.JSONException;
 import org.apache.wink.json4j.JSONObject;
 
-public class ASEAgentServerProvider implements IComponent{
-    private Map<String, String> m_agentServers;
+
+public class ASETemplateProvider implements IComponent{
+    private Map<String, String> m_templates;
     private IASEAuthenticationProvider m_authProvider;
 
-    public ASEAgentServerProvider(IASEAuthenticationProvider provider) {
+    public ASETemplateProvider(IASEAuthenticationProvider provider) {
         this.m_authProvider=provider;
     }   
 
     @Override
     public Map<String, String> getComponents() {
-        if(m_agentServers == null)
-        	loadAgentServers();
-        return m_agentServers;
-    }
-    
+        if(m_templates == null)
+        	loadTemplates();
+        return m_templates;
+    }   
+
     @Override
     public String getComponentName(String id) {
         return getComponents().get(id);
     }
     
-    private void loadAgentServers() {
+    private void loadTemplates() {
         if(m_authProvider.isTokenExpired())
 			return;
 		
-        m_agentServers = new HashMap<String, String>();        
-        String url =  m_authProvider.getServer() + CoreConstants.ASE_AGENT_SERVER;
-        Map<String, String> headers = m_authProvider.getAuthorizationHeader(true);        		
-        HttpsClient client = new HttpsClient();
+        m_templates = new HashMap<String, String>();        
+        String url =  m_authProvider.getServer() + "/api/templates";
+        Map<String, String> headers = m_authProvider.getAuthorizationHeader(true);      
+		
+		HttpsClient client = new HttpsClient();
 		
 		try {
-		 	HttpResponse response = client.get(url, headers, null);
+			HttpResponse response = client.get(url, headers, null);
 			
 			if (!response.isSuccess())
 				return;
@@ -57,13 +58,13 @@ public class ASEAgentServerProvider implements IComponent{
 			
 			for(int i = 0; i < array.length(); i++) {
 				JSONObject object = array.getJSONObject(i);
-				String id = object.getString("serverId");
+				String id = object.getString("id");
 				String path = object.getString("name");
-				m_agentServers.put(id, path);
+				m_templates.put(id, path);
 			}
 		}
 		catch(IOException | JSONException e) {
-			m_agentServers = null;
+			m_templates = null;
 		}
-    }
+    }    
 }
