@@ -121,9 +121,14 @@ public class ASEScanServiceProvider implements IScanServiceProvider, Serializabl
 			    return null;
 		    }
 		    
-		    if (loginType.equals("Automatic") && !updatescantJob(getUpdatescantJobParams("LoginUsername", params.get("userName"), "false"),jobId) && 
-				!updatescantJob(getUpdatescantJobParams("LoginPassword", params.get("password"), "true"),jobId)) {
-			    return null;
+		    if (loginType.equals("Automatic")) 
+            {
+            	boolean status = updatescantJob(getUpdatescantJobParams("LoginUsername", params.get("userName"), "false"),jobId );
+            	if (status) {
+            		status = updatescantJob(getUpdatescantJobParams("LoginPassword", params.get("password"), "true"),jobId);
+            	}
+            	if(!status)
+            		return null;                
 		    }
 		    
 		    if (loginType.equals("Manual") && !updateTrafficJob(getFile(params.get("trafficFile")),jobId,"login")) {
