@@ -146,9 +146,11 @@ public class ASEScanServiceProvider implements IScanServiceProvider, Serializabl
 		    return null;
 		}
 
-        // Test Optimization
-		if(!params.get("testOptimization").isEmpty() && !updatescantJob(getUpdatescantJobParams("TestOptimization", params.get("testOptimization"), "false"),jobId)) {
-			return null;
+		// Test Optimization
+		if(!params.get("testOptimization").isEmpty() &&
+		        !updatescantJob(getUpdatescantJobParams("TestOptimization",
+				params.get("testOptimization"), "false"), jobId)) {
+		   return null;
 		}
 
 		return jobId;
